@@ -6,6 +6,9 @@ def stft_mag(x, win_len, hop_size, zero_pad_f = 1) :
     """
     return abs(stft(x, win_len, hop_size, zero_pad_f))
 
+def auto_correlate(x):
+    ac = np.correlate(x, x, mode='full')
+    return ac[len(x)-1:]
 
 def freqs_of_fft(sample_rate, win_len):
     """
@@ -62,3 +65,57 @@ def stft(x, win_len, hop_size, zp_factor = 1, window = None, centered=True) :
         output[: , h] = np.fft.rfft(sig)
 
     return output
+
+
+def parabolic_interp(f, x):
+    """
+    Quadratic interpolation for estimating the true position of an
+    inter-sample maximum when nearby samples are known.
+
+    REFACTORED FROM https://gist.github.com/endolith/255291#L38 AS AN 
+    IMPLEMENTATION OF PARABOLIC INTERPOLATION. 
+
+    f is a vector and x is an index for that vector.
+
+    Returns (vx, vy), the coordinates of the vertex of a parabola that goes
+    through point x and its two neighbors.
+
+    Example:
+    Defining a vector f with a local maximum at index 3 (= 6), find local
+    maximum if points 2, 3, and 4 actually defined a parabola.
+
+    In [3]: f = [2, 3, 1, 6, 4, 2, 3, 1]
+
+    In [4]: parabolic(f, argmax(f))
+    Out[4]: (3.2142857142857144, 6.1607142857142856)
+    """
+    xv = 1/2. * (f[x-1] - f[x+1]) / (f[x-1] - 2 * f[x] + f[x+1]) + x
+    yv = f[x] - 1/4. * (f[x-1] - f[x+1]) * (xv - x)
+    return (xv, yv)
+
+
+def find_peaks(x, win_len=5, thresh=0.95):
+    """find highest peak within a neighborhood of win_len. Reject peaks smaller than
+    largest peak * thresh
+    """
+    peaks = []
+    hw = win_len / 2
+    x_len = len(x)
+    x = np.pad(x, hw, mode='edge')
+    
+    for n in np.arange(x_len):
+        win = x[n:n+win_len]
+        is_bigger = win < x[n+hw]
+        is_bigger[hw] = True     # don't consider the point itself.
+        if is_bigger.all():
+            peaks.append(n)
+    peaks = np.array(peaks)
+    
+    if len(peaks):
+        # find a threshold relative to the highest peak
+        th = np.max(x[peaks]) * thresh
+
+        # filter out values that are below th
+        peaks = peaks[x[peaks] > th]
+
+    return peaks

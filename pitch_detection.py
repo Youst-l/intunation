@@ -1,5 +1,6 @@
 from util import *
 from scipy.io import wavfile
+from scipy.signal import fftconvolve
 
 def detect_pitch(signal, fs):
     """
@@ -21,6 +22,7 @@ def detect_pitch(signal, fs):
     eps = 0.0000001
 
     # Get spectrogram (magnitude STFT) from audio signal and the constituent freqs
+    signal -= np.mean(signal)  # Remove DC offset
     spec = stft_mag(signal, win_len, hop_size)
     fft_freqs = freqs_of_fft(sample_rate, win_len)
 
@@ -32,15 +34,20 @@ def detect_pitch(signal, fs):
     shift = average / shift
     avg = np.pad(average, ((1, 1), (0, 0)), mode='constant')
     shift = np.pad(shift, ((1, 1), (0, 0)), mode='constant')
+    dskew = 0.5 * avg * shift
 
     # Create frequency thresholds based on min and max freq
     pitches = np.zeros_like(spec)
+    magnitudes = np.zeros_like(spec)
     idx = np.argwhere(column_wise_local_max(spec, max_thresh))
 
     # Store pitch and magnitude
     pitches[idx[:, 0], idx[:, 1]] = ((idx[:, 0] + shift[idx[:, 0], idx[:, 1]])
                                      * float(sample_rate) / win_len)
-    return pitches
+
+    magnitudes[idx[:, 0], idx[:, 1]] = (spec[idx[:, 0], idx[:, 1]]
+                                  + dskew[idx[:, 0], idx[:, 1]])
+    return pitches[np.argmax(magnitudes, axis=0)]
 
 def column_wise_local_max(x, thresh):
     """
@@ -55,8 +62,75 @@ def column_wise_local_max(x, thresh):
     column_local_max  = np.logical_and(x > pad_x[dim_1_idx], x >= pad_x[dim_2_idx])
     return column_local_max
 
+def detect_pitch_autocorr(signal, fs):
+    """
+    Calculate autocorrelation efficiently using an FFT convolution.
+    Use parabolic interpolation on local maxes of autocorrelation 
+    to find true fundamental frequencies (better for voice).
+
+    Inputs:
+    signal: audio signal
+    fs: sample rate of audio signal
+    """
+    signal = np.subtract(signal, np.mean(signal)) # Remove DC offset
+    corr = fftconvolve(signal, signal[::-1], mode='full')
+    corr = corr[len(corr)//2:]
+
+    # Find the first peak on the left
+    peaks = find_peaks(corr)
+    print(peaks)
+    interp_peak = parabolic_interp(corr, peaks)[0]
+    return fs/interp_peak
+
+
+
+
+# CODE BELOW IS NOT FUNCTIONAL BUT IS ME (INEFFICIENTLY) IMPLEMENTING YIN
+
+# def yin_pitch_detection(signal, fs):
+#     # PARAMETERS 
+#     sample_rate = float(fs)
+#     freq_min, freq_max = 40, 4000 # frequency range of human voice in Hz 
+#     win_len = 4096
+#     hop_size = win_len / 4
+#     max_thresh = 0.1
+#     eps = 0.0000001
+
+#     # Get spectrogram (magnitude STFT) from audio signal and the constituent freqs
+#     signal -= np.mean(signal)  # Remove DC offset
+#     spec = stft_mag(signal, win_len, hop_size)
+#     k = np.arange(len(signal))
+#     T = len(signal)/fs
+#     frqLabel = k/T
+
+#     # Step 2: Get differences of autocorrelation
+#     tau_max = 3000
+#     win_size = 6000
+#     r = np.zeros(tau_max)
+#     for tau in range(tau_max):
+#         s = 0.
+#         for j in range(win_len):
+#             s += (signal[j] - signal[j+tau])**2
+#         r[tau] = s
+
+#     # Step 3: Cumulative mean normalized difference function
+#     d = np.zeros(tau_max)
+#     s = r[0]
+#     d[0] = 1
+#     for tau in range(1,tau_max):
+#         s += r[tau]
+#         d[tau] = r[tau] / ((1 / tau) * s) 
+
+#     for i in range(tau_max):
+#         if d[i] > 0.5:
+#             continue
+#         if d[i-1] > d[i] < d[i+1]:
+#             print(44100/i)
+#             break
+
+
 
 if __name__ == "__main__":
     fs, snd = wavfile.read('samples/440_3sec.wav')
-    er = detect_pitch(snd, fs)
-    print(np.max(er, axis=0))
+    er = detect_pitch_autocorr(snd, fs)
+    print(er)
