@@ -1,8 +1,9 @@
 from util import *
 from scipy.io import wavfile
 from scipy.signal import fftconvolve
+import matplotlib.pyplot as plt
 
-def detect_pitch(signal, fs):
+def detect_pitch_parabolic(signal, fs):
     """
     Pitch detection of a signal using parabolic interpolation on the STFT.
 
@@ -78,11 +79,40 @@ def detect_pitch_autocorr(signal, fs):
 
     # Find the first peak on the left
     peaks = find_peaks(corr)
-    print(peaks)
     interp_peak = parabolic_interp(corr, peaks)[0]
     return fs/interp_peak
 
+def detect_pitches(fp, window_len=4096, thresh=30):
+    """
+    Detects pitches given a filepath to the audio sample in question.
+    Returns a list of tuples [(a1, b1), (a2, b2), ...] representing (frequency, time) pairs of the pitch.
 
+    Inputs:
+    fp: filepath of audio to pitch detect on
+    window_len: number of samples to window audio file over
+    thresh: threshold in Hz of when to classify a new pitch as "different"
+
+    """
+    fs, snd = wavfile.read(fp)
+    assert(snd.ndim == 1) # Only allow mono recordings
+    pitches = [(0, 0)]
+    for i in range(0, len(snd), window_len):
+        sig = snd[i:min(len(snd), i+window_len)]
+        pitch = detect_pitch_autocorr(sig, fs)[0]
+        last_pitch = pitches[-1][1]
+        if np.abs(pitch - last_pitch) >= thresh:
+            pitches.append((float(i)/float(fs), pitch))
+    return pitches[1:] # get rid of dummy pitch at beginning
+
+
+
+if __name__ == "__main__":
+    p = detect_pitches('samples/3notes_human.wav')
+    plt.scatter(*zip(*p))
+    plt.ylim((0, 1000))
+    plt.xlabel("Time in audio (sec)")
+    plt.ylabel("Pitch detected (Hz)")
+    plt.show()
 
 
 # CODE BELOW IS NOT FUNCTIONAL BUT IS ME (INEFFICIENTLY) IMPLEMENTING YIN
@@ -127,10 +157,3 @@ def detect_pitch_autocorr(signal, fs):
 #         if d[i-1] > d[i] < d[i+1]:
 #             print(44100/i)
 #             break
-
-
-
-if __name__ == "__main__":
-    fs, snd = wavfile.read('samples/440_3sec.wav')
-    er = detect_pitch_autocorr(snd, fs)
-    print(er)

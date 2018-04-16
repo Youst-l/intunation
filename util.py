@@ -94,7 +94,7 @@ def parabolic_interp(f, x):
     return (xv, yv)
 
 
-def find_peaks(x, win_len=5, thresh=0.95):
+def find_peaks(x, win_len=5, thresh=0.99):
     """find highest peak within a neighborhood of win_len. Reject peaks smaller than
     largest peak * thresh
     """
@@ -112,9 +112,9 @@ def find_peaks(x, win_len=5, thresh=0.95):
     peaks = np.array(peaks)
     
     if len(peaks):
+
         # find a threshold relative to the highest peak
         th = np.max(x[peaks]) * thresh
-
         # filter out values that are below th
         peaks = peaks[x[peaks] > th]
 
