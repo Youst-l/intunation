@@ -82,7 +82,7 @@ def detect_pitch_autocorr(signal, fs):
     interp_peak = parabolic_interp(corr, peaks)[0]
     return fs/interp_peak
 
-def detect_pitches(fp, window_len=4096, thresh=30):
+def detect_pitches(fp, window_len=2048, thresh=30):
     """
     Detects pitches given a filepath to the audio sample in question.
     Returns a list of tuples [(a1, b1), (a2, b2), ...] representing (frequency, time) pairs of the pitch.
@@ -95,20 +95,22 @@ def detect_pitches(fp, window_len=4096, thresh=30):
     """
     fs, snd = wavfile.read(fp)
     assert(snd.ndim == 1) # Only allow mono recordings
+    all_pitches = []
     pitches = [(0, 0)]
     for i in range(0, len(snd), window_len):
         sig = snd[i:min(len(snd), i+window_len)]
         pitch = detect_pitch_autocorr(sig, fs)[0]
+        all_pitches.append((float(i)/float(fs), pitch))
         last_pitch = pitches[-1][1]
         if np.abs(pitch - last_pitch) >= thresh:
             pitches.append((float(i)/float(fs), pitch))
-    return pitches[1:] # get rid of dummy pitch at beginning
+    return pitches[1:], all_pitches # get rid of dummy pitch at beginning
 
 
 
 if __name__ == "__main__":
-    p = detect_pitches('samples/3notes_human.wav')
-    plt.scatter(*zip(*p))
+    p, all_pitch = detect_pitches('samples/3notes_human.wav')
+    plt.scatter(*zip(*all_pitch))
     plt.ylim((0, 1000))
     plt.xlabel("Time in audio (sec)")
     plt.ylabel("Pitch detected (Hz)")
