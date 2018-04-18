@@ -109,7 +109,7 @@ def detect_pitches(fp, window_len=2048, thresh=30):
 
 
 if __name__ == "__main__":
-    p, all_pitch = detect_pitches('samples/3notes_human.wav')
+    p, all_pitch = detect_pitches('samples/440_human.wav')
     plt.scatter(*zip(*all_pitch))
     plt.ylim((0, 1000))
     plt.xlabel("Time in audio (sec)")
