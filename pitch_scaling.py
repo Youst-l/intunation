@@ -17,7 +17,6 @@ def time_stretch_sola(signal, alpha, window_len = 2048, taper_len = 256):
         windowed_signals += [windowed_signal]
 
     return overlap_add(windowed_signals, window_len, taper_len)
-    #return signal
 
 def get_windowed_signal(signal, t, window_len, taper_len):
     window = np.arange(0, taper_len, 1) * 1./taper_len
@@ -45,7 +44,7 @@ def pitch_scale(fp, alpha):
     return time_stretch_sola(snd, alpha)
 
 if __name__ == "__main__":
-    signal = pitch_scale('samples/3notes_human.wav', 2)
+    signal = pitch_scale('samples/440_human.wav', 1)
     play_signal(signal)
 
 
