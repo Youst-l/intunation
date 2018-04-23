@@ -7,19 +7,11 @@ Ear training game using autotune
 * Implemented FFT --> parabolic interpolation approach; works well for pure tones and stringed instruments but not voice so lol
 
 ## TODO
-* How to do pitch scaling? Was thinking we get the constituent frequencies with a pure FFT, find the difference between our estimated fundamental and the one we're going for, and just multiplicatively scale up and IFFT? Curious to see how this works?
-* Need to window signal in chunks in order to handle changing pitches 
-* Denoising input would likely help; need to think about how to do that
+* Denoising input still needs work-- test bandpass filters
+* Need a way to detect the start and end of audio and clip to those regions
+* Need a way to toggle microphone on and off-- have mic go off for an allotted amount of time to record 
+* How to handle multiple notes-- need senses of time when things change 
+* Visuals need to be created 
+* Port to flask immediately? 
+* Need standardization of exercises-- i.e. some data structure we use to get all of the necessary info from it
 
-### DEVANY TODO:
-* Create single note pitch exercises
-* Get working interface (barebones) with playing and recording audio and maybe visualizing the pitch detection
-
-### DIVYA TODO:
-* Look into smoothing audio and parameter tuning for pitch detection
-* Filtering audio off the bat?
-* Get microphone to work on my laptop (rip)
-
-### JAMIE TODO:
-* Start on pitch scaling (we should all discuss this together) 
-* Familiarize with existing code

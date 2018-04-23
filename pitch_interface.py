@@ -44,7 +44,7 @@ class MainWidget(BaseWidget):
         self.record_label = Label(text='Press r to record.', pos=(Window.width/2, Window.height * 4 / 6))
         self.play_label = Label(text='Press p to play the note.', pos=(Window.width/2, Window.height * 3 / 6))
         self.score_label = Label(text='Press a to score your recording.', pos=(Window.width/2, Window.height* 2 / 6))
-        self.play_record_label = Label(text='Press w to play recording and autotune.', pos=(Window.width/2, Window.height / 6))
+        self.play_record_label = Label(text='Press x to play recording, y to play autotune.', pos=(Window.width/2, Window.height / 6))
         self.add_widget(self.play_label)
         self.add_widget(self.note_label)
         self.add_widget(self.record_label)
@@ -64,30 +64,36 @@ class MainWidget(BaseWidget):
         print 'recording'
         self.writer.toggle()
 
-    def play_autotune_and_recording(self):
+    def play_autotune(self):
+        self.autotune_wav = WaveGenerator(WaveFile('data_autotuned1.wav'))
+        self.mixer.add(self.autotune_wav)
+
+    def play_recording(self):
         self.recording_wav = WaveGenerator(WaveFile('data1.wav'))
         self.mixer.add(self.recording_wav)
-        # self.autotune_wav = WaveGenerator(WaveFile('data_autotuned1.wav'))
-        # self.mixer.add(self.autotune_wav)
 
     def score(self):
         self.detected_pitches = detect_pitches('data1.wav')[0]
-        print(self.detected_pitches)
+        print "DETECTED PITCHES: ", self.detected_pitches
         note_num = self.convert_hz_to_note(440.0)
 
     def autotune(self):
         fs, snd = wavfile.read('data1.wav')
-        print(len(snd))
         true_pitch = 440.0
         self.score()
-        autotuned = []
+        autotuned, scores, frame_lens = [], [], []
         for ix, (start_time, detected_pitch) in enumerate(self.detected_pitches):
             start_frame = int(start_time * fs)
-            # If the last point, we capture everything till the end 
             end_frame = len(snd) if ix == len(self.detected_pitches) - 1 else int(self.detected_pitches[ix+1][0]*fs)
+            alpha = true_pitch/detected_pitch
+            print "ALPHAS: ", alpha
+            scores.append(np.abs(np.log(alpha)))
+            frame_lens.append(end_frame - start_time)
             autotuned.extend(pitch_scale(fs, snd[start_frame:end_frame], true_pitch/detected_pitch))
-        autotuned = np.array(autotuned)
-        autotuned /= np.max(np.abs(autotuned))
+        autotuned = np.array(autotuned, dtype=np.int16)
+        #autotuned /= np.max(np.abs(autotuned))
+        score = 1 - np.average(scores, weights=frame_lens)
+        self.score_val += score
         wavfile.write('data_autotuned1.wav', fs, autotuned)
         return autotuned
 
@@ -106,13 +112,15 @@ class MainWidget(BaseWidget):
             self.score()
         if keycode[1] == 'a':
             self.autotune()
-        if keycode[1] == 'w':
-            self.play_autotune_and_recording()
+        if keycode[1] == 'x':
+            self.play_recording()
+        if keycode[1] == 'y':
+            self.play_autotune()
 
     def on_update(self):
         self.objects.on_update()
         self.audio.on_update()
-        self.info.text = 'Score:  ' + str(self.score_val)
+        self.info.text = 'Score:  ' + "{0:.2f}".format(self.score_val)
 
 class BeatBubble(InstructionGroup):
     def __init__(self, input_note, true_note):
