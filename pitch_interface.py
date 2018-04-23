@@ -8,8 +8,8 @@ from common.writer import *
 from common.wavegen import *
 from common.wavesrc import *
 from common.gfxutil import *
-from common.synth import *
 from common.clock import *
+from common.note import *
 
 from kivy.graphics.instructions import InstructionGroup
 from kivy.graphics import Color, Ellipse, Line, Rectangle
@@ -30,10 +30,9 @@ class MainWidget(BaseWidget):
         self.objects = AnimGroup()
         self.canvas.add(self.objects)
         self.writer = AudioWriter('data')
-        self.audio = Audio(2, input_func=self.writer.add_audio)
-        self.synth = Synth("data/FluidR3_GM.sf2")
-        self.audio.set_generator(self.synth)
-        self.synth.program(0, 0, 46)
+        self.audio = Audio(1, input_func=self.writer.add_audio)
+        self.mixer = Mixer()
+        self.audio.set_generator(self.mixer)
         self.score_val = 0
 
         self.notes = ['C','Db','D','Eb','F','Gb','G','Ab','A','Bb','B']
@@ -44,11 +43,13 @@ class MainWidget(BaseWidget):
         self.note_label = Label(text='Sing a concert ' + self.note, pos=(Window.width / 2, Window.height * 5 / 6))
         self.record_label = Label(text='Press r to record.', pos=(Window.width/2, Window.height * 4 / 6))
         self.play_label = Label(text='Press p to play the note.', pos=(Window.width/2, Window.height * 3 / 6))
-        self.score_label = Label(text='Press s to score your recording.', pos=(Window.width/2, Window.height* 2 / 6))
+        self.score_label = Label(text='Press a to score your recording.', pos=(Window.width/2, Window.height* 2 / 6))
+        self.play_record_label = Label(text='Press w to play recording and autotune.', pos=(Window.width/2, Window.height / 6))
         self.add_widget(self.play_label)
         self.add_widget(self.note_label)
         self.add_widget(self.record_label)
         self.add_widget(self.score_label)
+        self.add_widget(self.play_record_label)
         
         self.info = topleft_label()
         self.add_widget(self.info)
@@ -56,21 +57,26 @@ class MainWidget(BaseWidget):
 
     def play_note(self):
         print 'note playing'
-        self.synth.noteon(0,self.pitch,100)
+        self.note = NoteGenerator(69.0,1.0,1.0)
+        self.mixer.add(self.note)
 
     def record(self):
         print 'recording'
         self.writer.toggle()
 
-    def score(self):
-        self.detected_pitches = detect_pitches('samples/440_human_flat.wav')[0]
+    def play_autotune_and_recording(self):
+        self.recording_wav = WaveGenerator(WaveFile('data1.wav'))
+        self.mixer.add(self.recording_wav)
+        # self.autotune_wav = WaveGenerator(WaveFile('data_autotuned1.wav'))
+        # self.mixer.add(self.autotune_wav)
 
+    def score(self):
+        self.detected_pitches = detect_pitches('data1.wav')[0]
         print(self.detected_pitches)
         note_num = self.convert_hz_to_note(440.0)
-        self.score_val += self.pitch - note_num
 
     def autotune(self):
-        fs, snd = wavfile.read('samples/440_human_flat.wav')
+        fs, snd = wavfile.read('data1.wav')
         print(len(snd))
         true_pitch = 440.0
         self.score()
@@ -82,7 +88,7 @@ class MainWidget(BaseWidget):
             autotuned.extend(pitch_scale(fs, snd[start_frame:end_frame], true_pitch/detected_pitch))
         autotuned = np.array(autotuned)
         autotuned /= np.max(np.abs(autotuned))
-        wavfile.write('samples/440_autotuned.wav', fs, autotuned)
+        wavfile.write('data_autotuned1.wav', fs, autotuned)
         return autotuned
 
     def rand_note(self):
@@ -100,6 +106,8 @@ class MainWidget(BaseWidget):
             self.score()
         if keycode[1] == 'a':
             self.autotune()
+        if keycode[1] == 'w':
+            self.play_autotune_and_recording()
 
     def on_update(self):
         self.objects.on_update()
