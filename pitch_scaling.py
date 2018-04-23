@@ -50,7 +50,7 @@ def pitch_scale(fp, alpha):
     return time_stretch_sola(snd, alpha)
 
 if __name__ == "__main__":
-    signal = pitch_scale('samples/3notes_human.wav', 2)
+    signal = pitch_scale('samples/440_human.wav', 1)
     play_signal(signal)
 
 

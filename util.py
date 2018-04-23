@@ -3,6 +3,7 @@ import time
 from common.audio import *
 
 import numpy as np
+from scipy.signal import butter, lfilter
 
 def stft_mag(x, win_len, hop_size, zero_pad_f = 1) :
     """
@@ -98,7 +99,7 @@ def parabolic_interp(f, x):
     return (xv, yv)
 
 
-def find_peaks(x, win_len=5, thresh=0.99):
+def find_peaks(x, win_len=5, thresh=0.9):
     """find highest peak within a neighborhood of win_len. Reject peaks smaller than
     largest peak * thresh
     """
@@ -123,6 +124,24 @@ def find_peaks(x, win_len=5, thresh=0.99):
         peaks = peaks[x[peaks] > th]
 
     return peaks
+
+def butter_bandpass_filter(signal, lowcut, highcut, fs, order=5):
+    """
+    Butterworth bandpass filter on signal.
+    Inputs:
+    signal: signal to filter
+    lowcut: lower cutoff frequency 
+    highcut: upper cutoff frequency
+    fs: sample rate of signal
+    order: order of Butterworth filter; default is 5. 
+    """
+    nyq_frequency = float(fs)/2.
+    lowcut, highcut = float(lowcut), float(highcut)
+    low_freq, high_freq = lowcut/nyq_frequency, highcut/nyq_frequency
+    b, a = butter(order, [low_freq, high_freq], btype='band')
+    y = lfilter(b, a, signal)
+    return y
+
 
 def play_signal(x):
     audio = Audio(1)

@@ -1,6 +1,6 @@
 from util import *
 from scipy.io import wavfile
-from scipy.signal import fftconvolve
+from scipy.signal import fftconvolve, butter, lfilter
 import matplotlib.pyplot as plt
 
 def detect_pitch_parabolic(signal, fs):
@@ -93,15 +93,23 @@ def detect_pitches(fp, window_len=2048, thresh=30):
     thresh: threshold in Hz of when to classify a new pitch as "different"
 
     """
+    # Load signal and clean it with filtering
     fs, snd = wavfile.read(fp)
     assert(snd.ndim == 1) # Only allow mono recordings
+    # Pitch detect in windows
+    octave_thresh = 5
     all_pitches = []
     pitches = [(0, 0)]
     for i in range(0, len(snd), window_len):
         sig = snd[i:min(len(snd), i+window_len)]
-        pitch = detect_pitch_autocorr(sig, fs)[0]
-        all_pitches.append((float(i)/float(fs), pitch))
+        possible_pitches = detect_pitch_autocorr(sig, fs)
+        pitch = possible_pitches[0]
         last_pitch = pitches[-1][1]
+        # Edge case 1: too much of a shift in freq
+        if len(possible_pitches) > 1 and i != 0 and np.abs(pitch - last_pitch) > np.abs(last_pitch - possible_pitches[1]) \
+         and np.abs((possible_pitches[1] / pitch) - 2) < octave_thresh : 
+            pitch = possible_pitches[1]
+        all_pitches.append((float(i)/float(fs), pitch))
         if np.abs(pitch - last_pitch) >= thresh:
             pitches.append((float(i)/float(fs), pitch))
     return pitches[1:], all_pitches # get rid of dummy pitch at beginning
