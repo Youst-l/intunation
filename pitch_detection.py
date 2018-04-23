@@ -82,7 +82,7 @@ def detect_pitch_autocorr(signal, fs):
     interp_peak = parabolic_interp(corr, peaks)[0]
     return fs/interp_peak
 
-def detect_pitches(fp, window_len=2048, thresh=30):
+def detect_pitches(fp, window_len=2048, thresh=15):
     """
     Detects pitches given a filepath to the audio sample in question.
     Returns a list of tuples [(a1, b1), (a2, b2), ...] representing (frequency, time) pairs of the pitch.

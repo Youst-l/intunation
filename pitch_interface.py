@@ -1,4 +1,3 @@
-
 import sys
 import random
 sys.path.append('..')
@@ -18,6 +17,7 @@ from kivy.graphics import PushMatrix, PopMatrix, Translate, Scale, Rotate
 from kivy.clock import Clock as kivyClock
 from pitch_detection import detect_pitches
 from pitch_scaling import pitch_scale
+from scipy.io import wavfile
 from math import log
 
 # Read data from Divya's pitch_detection.py list of tuples (time,hz)
@@ -38,7 +38,7 @@ class MainWidget(BaseWidget):
 
         self.notes = ['C','Db','D','Eb','F','Gb','G','Ab','A','Bb','B']
         self.pitches = [60,61,62,63,64,65,66,67,68,69,70,71]
-        self.note = self.rand_note()
+        self.note = 'A' #self.rand_note()
         self.pitch = self.pitches[self.notes.index(self.note)]
 
         self.note_label = Label(text='Sing a concert ' + self.note, pos=(Window.width / 2, Window.height * 5 / 6))
@@ -63,9 +63,27 @@ class MainWidget(BaseWidget):
         self.writer.toggle()
 
     def score(self):
-        self.detected_pitches = detect_pitches('samples/440_human.wav')
+        self.detected_pitches = detect_pitches('samples/440_human_flat.wav')[0]
+
+        print(self.detected_pitches)
         note_num = self.convert_hz_to_note(440.0)
         self.score_val += self.pitch - note_num
+
+    def autotune(self):
+        fs, snd = wavfile.read('samples/440_human_flat.wav')
+        print(len(snd))
+        true_pitch = 440.0
+        self.score()
+        autotuned = []
+        for ix, (start_time, detected_pitch) in enumerate(self.detected_pitches):
+            start_frame = int(start_time * fs)
+            # If the last point, we capture everything till the end 
+            end_frame = len(snd) if ix == len(self.detected_pitches) - 1 else int(self.detected_pitches[ix+1][0]*fs)
+            autotuned.extend(pitch_scale(fs, snd[start_frame:end_frame], true_pitch/detected_pitch))
+        autotuned = np.array(autotuned)
+        autotuned /= np.max(np.abs(autotuned))
+        wavfile.write('samples/440_autotuned.wav', fs, autotuned)
+        return autotuned
 
     def rand_note(self):
         return self.notes[random.randint(0,len(self.notes)-1)]
@@ -80,6 +98,8 @@ class MainWidget(BaseWidget):
             self.play_note()
         if keycode[1] == 's':
             self.score()
+        if keycode[1] == 'a':
+            self.autotune()
 
     def on_update(self):
         self.objects.on_update()

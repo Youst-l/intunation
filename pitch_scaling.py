@@ -46,15 +46,15 @@ def resample(signal, alpha):
     xf = np.arange(0, len(signal), alpha)
     return np.interp(xf, xi, signal)
 
-def pitch_scale(fp, alpha):
+def pitch_scale(fs, snd, alpha):
     """
     Scales the pitch of the given audio file.
 
     Inputs:
-    signal: audio signal
+    fs: sample rate of audio
+    snd: sound to scale
     alpha: the factor by which to pitch scale
     """
-    fs, snd = wavfile.read(fp)
     assert(snd.ndim == 1) # Only allow mono recordings
     time_stretched_signal = time_stretch_sola(snd, alpha)
     return resample(time_stretched_signal, alpha)
