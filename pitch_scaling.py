@@ -37,6 +37,11 @@ def overlap_add(signals, window_len, taper_len):
         output[offset:offset+window_len] += signal
     return output
 
+def resample(signal, alpha):
+    xi = np.arange(len(signal))
+    xf = np.arange(0, len(signal), alpha)
+    return np.interp(xf, xi, signal)
+
 def pitch_scale(fp, alpha):
     """
     Scales the pitch of the given audio file.
@@ -47,10 +52,11 @@ def pitch_scale(fp, alpha):
     """
     fs, snd = wavfile.read(fp)
     assert(snd.ndim == 1) # Only allow mono recordings
-    return time_stretch_sola(snd, alpha)
+    time_stretched_signal = time_stretch_sola(snd, alpha)
+    return resample(time_stretched_signal, alpha)
 
 if __name__ == "__main__":
-    signal = pitch_scale('samples/440_human.wav', 1)
+    signal = pitch_scale('samples/3notes_human.wav', 1)
     play_signal(signal)
 
 
