@@ -17,13 +17,18 @@ def time_stretch_sola(signal, alpha, window_len = 2048, taper_len = 256):
         windowed_signals += [windowed_signal]
 
     return overlap_add(windowed_signals, window_len, taper_len)
-    #return signal
 
 def get_windowed_signal(signal, t, window_len, taper_len):
     window = np.arange(0, taper_len, 1) * 1./taper_len
     window = np.append(window, np.full(window_len - 2*taper_len, 1))
     window = np.append(window, np.arange(taper_len, 0, -1) * 1./taper_len)
     return signal[t:t+window_len] * window
+
+def get_best_signal(signal, prev_t, candid_ti, candid_tf, window_len):
+    prev_signal = signal[prev_t:prev_t+window_len]
+    candid_signal = signal[candid_ti:candid_tf+window_len]
+    correlation = np.correlate(prev_signal, candid_signal)
+    print correlation
 
 def overlap_add(signals, window_len, taper_len):
     output = np.zeros(len(signals) * (window_len-taper_len) + taper_len)
