@@ -18,7 +18,9 @@ from kivy.clock import Clock as kivyClock
 from pitch_detection import detect_pitches
 from pitch_scaling import pitch_scale
 from scipy.io import wavfile
+from util import *
 from math import log
+
 
 # Read data from Divya's pitch_detection.py list of tuples (time,hz)
 # Come up with visual feedback for this information
@@ -73,7 +75,9 @@ class MainWidget(BaseWidget):
         self.mixer.add(self.recording_wav)
 
     def score(self):
-        self.detected_pitches = detect_pitches('data1.wav')[0]
+        fs, snd = wavfile.read('data1.wav')
+        snd = clean_audio(snd)
+        self.detected_pitches = detect_pitches(fs, snd)[0]
         print "DETECTED PITCHES: ", self.detected_pitches
         note_num = self.convert_hz_to_note(440.0)
 

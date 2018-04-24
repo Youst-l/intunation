@@ -99,7 +99,7 @@ def parabolic_interp(f, x):
     return (xv, yv)
 
 
-def find_peaks(x, win_len=5, thresh=0.9):
+def find_peaks(x, win_len=5, thresh=0.95):
     """find highest peak within a neighborhood of win_len. Reject peaks smaller than
     largest peak * thresh
     """
@@ -142,6 +142,20 @@ def butter_bandpass_filter(signal, lowcut, highcut, fs, order=5):
     y = lfilter(b, a, signal)
     return y
 
+def clean_audio(signal):
+    """
+    Clean audio signal that has been recorded 
+    for detection and scaling by removing hum, trimming
+    audio, and denoising.
+    """
+    # Remove DC offset
+    signal = np.subtract(signal, np.mean(signal))
+    # Trim the beginning of the signal 
+    max_val = np.max(np.abs(signal))
+    print(max_val)
+    thresh = 0.08*max_val
+    signal[np.abs(signal)<thresh] = 0
+    return signal
 
 def play_signal(x):
     audio = Audio(1)
@@ -151,7 +165,6 @@ def play_signal(x):
         def __init__(self):
             super(SignalGenerator, self).__init__()
             self.t = 0
-        
         def generate(self, num_frames, num_channels):
             assert num_channels == 1
             output = x_quieter[self.t:self.t+num_frames]

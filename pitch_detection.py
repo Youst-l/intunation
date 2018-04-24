@@ -73,16 +73,15 @@ def detect_pitch_autocorr(signal, fs):
     signal: audio signal
     fs: sample rate of audio signal
     """
-    signal = np.subtract(signal, np.mean(signal)) # Remove DC offset
     corr = fftconvolve(signal, signal[::-1], mode='full')
     corr = corr[len(corr)//2:]
 
     # Find the first peak on the left
     peaks = find_peaks(corr)
-    interp_peak = parabolic_interp(corr, peaks)[0]
-    return fs/interp_peak
+    interp_peak = parabolic_interp(corr, peaks)[0] if peaks.size != 0 else np.array([])
+    return fs/interp_peak if interp_peak.size != 0 else np.array([])
 
-def detect_pitches(fp, window_len=2048, thresh=15):
+def detect_pitches(fs, snd, window_len=2048, thresh=10):
     """
     Detects pitches given a filepath to the audio sample in question.
     Returns a list of tuples [(a1, b1), (a2, b2), ...] representing (frequency, time) pairs of the pitch.
@@ -93,8 +92,6 @@ def detect_pitches(fp, window_len=2048, thresh=15):
     thresh: threshold in Hz of when to classify a new pitch as "different"
 
     """
-    # Load signal and clean it with filtering
-    fs, snd = wavfile.read(fp)
     assert(snd.ndim == 1) # Only allow mono recordings
     # Pitch detect in windows
     octave_thresh = 5
@@ -103,15 +100,16 @@ def detect_pitches(fp, window_len=2048, thresh=15):
     for i in range(0, len(snd), window_len):
         sig = snd[i:min(len(snd), i+window_len)]
         possible_pitches = detect_pitch_autocorr(sig, fs)
-        pitch = possible_pitches[0]
-        last_pitch = pitches[-1][1]
-        # Edge case 1: too much of a shift in freq
-        if len(possible_pitches) > 1 and i != 0 and np.abs(pitch - last_pitch) > np.abs(last_pitch - possible_pitches[1]) \
-         and np.abs((possible_pitches[1] / pitch) - 2) < octave_thresh : 
-            pitch = possible_pitches[1]
-        all_pitches.append((float(i)/float(fs), pitch))
-        if np.abs(pitch - last_pitch) >= thresh:
-            pitches.append((float(i)/float(fs), pitch))
+        if len(possible_pitches) != 0:
+            pitch = possible_pitches[0]
+            last_pitch = pitches[-1][1]
+            # Edge case 1: too much of a shift in freq
+            if len(possible_pitches) > 1 and i != 0 and np.abs(pitch - last_pitch) > np.abs(last_pitch - possible_pitches[1]) \
+             and np.abs((possible_pitches[1] / pitch) - 2) < octave_thresh : 
+                pitch = possible_pitches[1]
+            all_pitches.append((float(i)/float(fs), pitch))
+            if np.abs(pitch - last_pitch) >= thresh:
+                pitches.append((float(i)/float(fs), pitch))
     return pitches[1:], all_pitches # get rid of dummy pitch at beginning
 
 
