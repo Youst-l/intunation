@@ -1,12 +1,29 @@
 var RECORDING = false;
 var audio_context = new AudioContext();
+var current_exercise;
+var recorded_audio;
+var autotuned_audio;
 
 $( document ).ready(function() {
     console.log( "ready!" );
-
+    recorded_audio
     $( "#record-btn" ).click(function() {
-	  if (RECORDING) { stopRecording(); }
-	  else { startRecording(); }
+	  if (RECORDING) { 
+	  	stopRecording();
+	  	$(this).css('color','black'); 
+	  }
+	  else { 
+	  	startRecording();
+	  	$(this).css('color','red');
+	  }
+	});
+	$( "#autotune-btn" ).click(function() { 
+		getAutotune();
+		//if (autotuned_audio) { autotuned_audio.play(); }
+		//else if (recorded_audio) { getAutotune(); }
+	});
+	$( "#playback-btn" ).click(function() { 
+		if (recorded_audio) { recorded_audio.play(); }
 	});
 });
 
@@ -19,6 +36,7 @@ $( document ).ready(function() {
 function startRecording() {
 	console.log("STARTING")
 	RECORDING = true;
+	autotuned_audio = null;
     // Access the Microphone using the navigator.getUserMedia method to obtain a stream
     navigator.getUserMedia({ audio: true }, function (stream) {
         // Expose the stream to be accessible globally
@@ -55,13 +73,10 @@ function stopRecording() {
     // Stop the getUserMedia Audio Stream !
     audio_stream.getAudioTracks()[0].stop();
     recorder && recorder.exportWAV(function (blob) {
-            console.log("YAY!");
+            var audioUrl = URL.createObjectURL(blob);
+            recorded_audio = new Audio(audioUrl);
+            recorded_audio.crossOrigin="anonymous";
             sendRecording(blob);
-			// reader.readAsDataURL(blob);
-            // create WAV download link using audio data blob
-            // createDownloadLink();
-
-            // Clear the Recorder to start again !
             recorder.clear();
         }, "audio/wav");
 }
@@ -81,8 +96,22 @@ sendRecording = function(blob) {
 	  processData: false,
 	  contentType: false, 
 	  cache: false
+	});            
+}
+
+function getAutotune() { 
+	$.ajax({
+	  type: "GET",
+	  url: "/score_recording",
+	  data: "", // TODO: Change based on exercise
+	}).done(function(data) {
+		var reader = new FileReader();
+		var blobData = new Blob([data], { type: 'audio/wav' });
+		dataUrl = URL.createObjectURL(blobData);
+		autotuned_audio = new Audio("http://127.0.0.1:5000/score_recording");
+		autotuned_audio.crossOrigin="anonymous";
+		autotuned_audio.play();
 	});
-            
 }
 
 

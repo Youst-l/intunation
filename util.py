@@ -1,7 +1,5 @@
 import time
 
-from common.audio import *
-
 import numpy as np
 from scipy.signal import butter, lfilter
 
@@ -157,26 +155,26 @@ def clean_audio(signal):
     signal[np.abs(signal)<thresh] = 0
     return signal
 
-def play_signal(x):
-    audio = Audio(1)
-    x_quieter = x.astype('float') / np.max(x)
+# def play_signal(x):
+#     audio = Audio(1)
+#     x_quieter = x.astype('float') / np.max(x)
 
-    class SignalGenerator(object):
-        def __init__(self):
-            super(SignalGenerator, self).__init__()
-            self.t = 0
-        def generate(self, num_frames, num_channels):
-            assert num_channels == 1
-            output = x_quieter[self.t:self.t+num_frames]
-            #print output
-            self.t += num_frames
-            shortfall = num_frames - len(output)
-            if shortfall > 0:
-                output = np.append(output, np.zeros(shortfall))
-            return (output, shortfall == 0)
+#     class SignalGenerator(object):
+#         def __init__(self):
+#             super(SignalGenerator, self).__init__()
+#             self.t = 0
+#         def generate(self, num_frames, num_channels):
+#             assert num_channels == 1
+#             output = x_quieter[self.t:self.t+num_frames]
+#             #print output
+#             self.t += num_frames
+#             shortfall = num_frames - len(output)
+#             if shortfall > 0:
+#                 output = np.append(output, np.zeros(shortfall))
+#             return (output, shortfall == 0)
 
-    audio.set_generator(SignalGenerator())
+#     audio.set_generator(SignalGenerator())
 
-    while True:
-        audio.on_update()
-        time.sleep(0.01)
+#     while True:
+#         audio.on_update()
+#         time.sleep(0.01)
