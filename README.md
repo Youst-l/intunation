@@ -19,4 +19,6 @@ Ear training game using autotune
 * Python autotune function needs to be smoothed out a lot
 * Noise filtering at the beginning would be helpful/nice
 * An actual interface cuz i don't do frontend lol 
+* Duration of recording, i.e. cue that's like (you have 4 sec to record, record now)
+* Way to select levels etc etc
 
