@@ -88,7 +88,7 @@ POST request received by Flask and handled internally server-side.
 sendRecording = function(blob) {
 	var formData = new FormData()
     formData.append('file', blob, 'audio') 
-    formData.append('title', 'lol');
+    formData.append('title', 'lol'); // filler for sending exercise data
 	$.ajax({
 	  type: "POST",
 	  url: "/save_recording",
