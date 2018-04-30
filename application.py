@@ -61,7 +61,6 @@ class Intunation(object):
 		
 	def score_recording(self):
 		if self.current_recording.size != 0 and self.current_fs:
-			print('im gay')
 			score, fs, snd = self.autotune([]) # TODO: should pass in cues after implementing autotune
 			wavfile.write('autotune.wav', fs, snd)
 			r = send_file('autotune.wav', mimetype='audio/wav', as_attachment=True, attachment_filename='autotune.wav')
