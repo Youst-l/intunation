@@ -1,7 +1,7 @@
 from util import *
 from scipy.io import wavfile
 
-def time_stretch_sola(signal, alpha, window_len = 8192, taper_len = 2048, candid_len = 1024):
+def time_stretch_sola(fs, signal, alphas, window_len = 8192, taper_len = 2048, candid_len = 1024):
     """
     Performs time stretching on an audio signal. Uses the
     synchronized overlap-add method (SOLA).
@@ -12,8 +12,17 @@ def time_stretch_sola(signal, alpha, window_len = 8192, taper_len = 2048, candid
     """
     windowed_signals = [get_windowed_signal(signal, 0, window_len, taper_len)]
     prev_offset = 0
-    for i in range(1, int(len(signal)/(window_len-taper_len) * alpha)):
-        offset = int((window_len- taper_len) * i / alpha)
+    alpha_idx = 0
+    #for i in range(1, int(len(signal)/(window_len-taper_len) * alpha)):
+    #    offset = int((window_len- taper_len) * i / alpha)
+    while True:
+        alpha = alphas[alpha_idx][1]
+        offset = prev_offset + int((window_len - taper_len) / alpha)
+        if alpha_idx + 1 < len(alphas) and offset / fs >= alphas[alpha_idx+1][0]:
+            alpha_idx += 1
+        #offset = prev_offset + (window_len - taper_len)
+        if offset >= len(signal):
+            break
         best_offset = get_best_signal_offset(signal, prev_offset, offset - candid_len, offset + candid_len, window_len)
         prev_offset = best_offset
         windowed_signal = get_windowed_signal(signal, best_offset, window_len, taper_len)
@@ -41,12 +50,19 @@ def overlap_add(signals, window_len, taper_len):
         output[offset:offset+len(signal)] += signal
     return output
 
-def resample(signal, alpha):
-    xi = np.arange(len(signal))
-    xf = np.arange(0, len(signal), alpha)
-    return np.interp(xf, xi, signal)
+def resample(fs, signal, alphas):
+    output = []
+    for i, (t, alpha) in enumerate(alphas):
+        start_frame = int(t * fs)
+        end_frame = len(signal)
+        if i+1 < len(alphas):
+            end_frame = int(alphas[i+1][0] * fs)
+        xi = np.arange(start_frame, end_frame)
+        xf = np.arange(start_frame, end_frame, alpha)
+        output = np.append(output, np.interp(xf, xi, signal[start_frame:end_frame]))
+    return output
 
-def pitch_scale(fs, snd, alpha):
+def pitch_scale(fs, snd, alphas):
     """
     Scales the pitch of the given audio file.
 
@@ -56,11 +72,13 @@ def pitch_scale(fs, snd, alpha):
     alpha: the factor by which to pitch scale
     """
     assert(snd.ndim == 1) # Only allow mono recordings
-    time_stretched_signal = time_stretch_sola(snd, alpha)
-    return resample(time_stretched_signal, alpha)
+    time_stretched_signal = time_stretch_sola(fs, snd, alphas)
+    return resample(fs, time_stretched_signal, alphas)
+    return time_stretched_signal
 
 if __name__ == "__main__":
-    signal = pitch_scale('samples/3notes_human.wav', 0.8)
+    fs, snd = wavfile.read('samples/3notes_human.wav')
+    signal = pitch_scale(fs, snd, [(0, 1), (1, 0.8), (2, 1.2)])
     play_signal(signal)
 
 
