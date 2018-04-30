@@ -18,7 +18,7 @@ def time_stretch_sola(fs, signal, alphas, window_len = 8192, taper_len = 2048, c
     while True:
         alpha = alphas[alpha_idx][1]
         offset = prev_offset + int((window_len - taper_len) / alpha)
-        if alpha_idx + 1 < len(alphas) and offset / fs >= alphas[alpha_idx+1][0]:
+        while alpha_idx + 1 < len(alphas) and offset / fs >= alphas[alpha_idx+1][0]:
             alpha_idx += 1
         #offset = prev_offset + (window_len - taper_len)
         if offset >= len(signal):
