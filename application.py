@@ -1,6 +1,6 @@
 import numpy as np
 
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, make_response
 from werkzeug.datastructures import FileStorage
 from scipy.io import wavfile
 from io import StringIO
@@ -16,10 +16,12 @@ class Intunation(object):
 		self.current_fs = None
 		self.current_pitch_detection = None
 		self.current_autotune = None
+		self.score = 0 
 		self.app.add_url_rule('/', view_func=self.render_html)
 		self.app.add_url_rule('/get_exercise', view_func=self.get_exercise, methods=['GET'])
 		self.app.add_url_rule('/save_recording', view_func=self.save_recording, methods=['POST'])
 		self.app.add_url_rule('/score_recording', view_func=self.score_recording, methods=['GET'])
+		self.app.add_url_rule('/score', view_func=self.get_score, methods=['GET'])
 		
 	def run(self):
 	    self.app.run()
@@ -58,11 +60,14 @@ class Intunation(object):
 		self.current_fs = fs
 		self.current_recording = np.sum(data, axis=1) / 2
 		return 'OK'
+
+	def get_score(self):
+		return make_response("%0.2f" % (self.score))
 		
 	def score_recording(self):
 		if self.current_recording.size != 0 and self.current_fs:
-			print('im gay')
 			score, fs, snd = self.autotune([]) # TODO: should pass in cues after implementing autotune
+			self.score += score
 			wavfile.write('autotune.wav', fs, snd)
 			r = send_file('autotune.wav', mimetype='audio/wav', as_attachment=True, attachment_filename='autotune.wav')
 			r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"

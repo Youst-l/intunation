@@ -25,6 +25,9 @@ $( document ).ready(function() {
 	$( "#playback-btn" ).click(function() { 
 		if (recorded_audio) { recorded_audio.play(); }
 	});
+	$( "#play-btn" ).click(function() { 
+		playExercise();
+	});
 });
 
 /**
@@ -110,9 +113,30 @@ function getAutotune() {
 		dataUrl = URL.createObjectURL(blobData);
 		autotuned_audio = new Audio("http://127.0.0.1:5000/score_recording");
 		autotuned_audio.crossOrigin="anonymous";
+		$.ajax({
+		  type: "GET",
+		  url: "/score",
+		  data: "",
+		}).done(function(data) {
+			$( "#score" ).text( "Score: " + data );
+		});
 		autotuned_audio.play();
 	});
 }
+
+function playExercise() { 
+	var oscillator = audio_context.createOscillator();
+	oscillator.type = 'sine';
+    oscillator.frequency.value = 440; // value in hertz
+    oscillator.connect(audio_context.destination);
+    oscillator.start();
+    setTimeout(
+        function(){
+            oscillator.stop();
+            oscillator.disconnect(audio_context.destination);
+    }, 2000);
+}
+
 
 
 
