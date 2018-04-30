@@ -3,6 +3,8 @@ var audio_context = new AudioContext();
 var current_exercise;
 var recorded_audio;
 var autotuned_audio;
+var username;
+var level;
 
 $( document ).ready(function() {
     console.log( "ready!" );
@@ -18,15 +20,20 @@ $( document ).ready(function() {
 	  }
 	});
 	$( "#autotune-btn" ).click(function() { 
-		getAutotune();
-		//if (autotuned_audio) { autotuned_audio.play(); }
-		//else if (recorded_audio) { getAutotune(); }
+		if (autotuned_audio) { autotuned_audio.play(); }
+		else if (recorded_audio) { getAutotune(); }
 	});
 	$( "#playback-btn" ).click(function() { 
 		if (recorded_audio) { recorded_audio.play(); }
 	});
 	$( "#play-btn" ).click(function() { 
 		playExercise();
+	});
+	$( "#signin-btn" ).click(function() { 
+		username = $( "#userName" ).text();
+		level = $("#level-select").find("option:selected").text(); 
+		console.log(username);
+		console.log(level);
 	});
 });
 

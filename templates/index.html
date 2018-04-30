@@ -10,11 +10,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
   <!-- Load style sheets -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato|Oswald">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/style.css') }}">
 
   <!-- Load jQuery and whatever other JS we need -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script type=text/javascript src="{{url_for('static', filename='js/recorder.js') }}"></script>
   <script type=text/javascript src="{{url_for('static', filename='js/main.js') }}"></script>
 
@@ -23,23 +24,35 @@
 
 <body>
 
-<header>
-  <h1>intunation</h1>
-</header>
+  <!-- HEADER -->
+  <header>
+    <h1>intunation.</h1>
+  </header>
 
-<div id="score">Score: 0</div>
-<div id="controls">
-   <div id="exercise"> Please record a concert A. </div>
-   <button id="play-btn">Play Note</button>
-   <button id="record-btn">Record</button>
-   <button id="playback-btn">Playback Recording</button>
-   <button id="autotune-btn">Autotune/Score</button>
-</div>
+  <!-- CORE FUNCTION -->
+  <div id="metadata">
+    <div id="user"></div>
+    <div id="score">Score: 0</div>
+    <div id="level">
+      <select class="form-control" id="sel1">
+        <option>Level 1: Pitch</option>
+        <option>Level 2: Interval</option>
+        <option>Level 3: Melody</option>
+      </select>
+    </div>
+  </div>
+  <div id="controls">
+     <div id="exercise"> Please record a concert A. </div>
+     <button type="button" id="play-btn">Play Note</button>
+     <button type="button" id="record-btn">Record</button>
+     <button type="button" id="playback-btn">Playback Recording</button>
+     <button type="button" id="autotune-btn">Autotune/Score</button>
+  </div>
 
-<div="audio-el">
-  <audio id="playback"></audio>
-  <audio id="autotune"></audio>
-</div>
+  <div="audio-el">
+    <audio id="playback"></audio>
+    <audio id="autotune"></audio>
+  </div>
 </body>
 
 </html>
