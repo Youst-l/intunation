@@ -8,19 +8,24 @@ var level;
 
 $( document ).ready(function() {
     console.log( "ready!" );
-    recorded_audio
+    $('#signin').modal({backdrop: 'static', keyboard: false})
+    $('#signin').modal('show');
     $( "#record-btn" ).click(function() {
 	  if (RECORDING) { 
 	  	stopRecording();
-	  	$(this).css('color','black'); 
+	  	$(this).removeClass("btn btn-danger").addClass("btn btn-primary"); 
+	  	$('#autotune-btn').prop('disabled', false);
 	  }
 	  else { 
 	  	startRecording();
-	  	$(this).css('color','red');
+	  	$(this).removeClass("btn btn-primary").addClass("btn btn-danger"); 
 	  }
 	});
 	$( "#autotune-btn" ).click(function() { 
-		if (autotuned_audio) { autotuned_audio.play(); }
+		if (autotuned_audio) { 
+			autotuned_audio.play(); 
+			$('#playback-btn').prop('disabled', false);
+		}
 		else if (recorded_audio) { getAutotune(); }
 	});
 	$( "#playback-btn" ).click(function() { 
@@ -28,12 +33,20 @@ $( document ).ready(function() {
 	});
 	$( "#play-btn" ).click(function() { 
 		playExercise();
+		$('#record-btn').prop('disabled', false);
 	});
+	$('#record-btn').prop('disabled', true);
+	$('#playback-btn').prop('disabled', true);
+	$('#autotune-btn').prop('disabled', true);
 	$( "#signin-btn" ).click(function() { 
-		username = $( "#userName" ).text();
-		level = $("#level-select").find("option:selected").text(); 
-		console.log(username);
-		console.log(level);
+		username = $( "#userName" ).val();
+		level = $("#level-select").find("option:selected").text();
+		if (username != "") { 
+			$("#user").html("Welcome, " + "<strong>" + username + "</strong>");
+			$("#level").text(level);
+			$("#dimScreen").hide();
+			$('#signin').modal('hide');	
+		};
 	});
 });
 
