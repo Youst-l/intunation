@@ -6,11 +6,16 @@ var recorded_audio;
 var autotuned_audio;
 var username;
 var level;
+var NUM_LEVELS = 3;
 
 $( document ).ready(function() {
     console.log( "ready!" );
+    $('#record-btn').prop('disabled', true);
+	$('#playback-btn').prop('disabled', true);
+	$('#autotune-btn').prop('disabled', true);
     $('#signin').modal({backdrop: 'static', keyboard: false})
-    $('#signin').modal('show');
+    $('#complete-level').modal({backdrop: 'static', keyboard: false})
+    $('#complete-level').modal('hide');
     $( "#record-btn" ).click(function() {
 	  if (RECORDING) { 
 	  	stopRecording();
@@ -23,22 +28,20 @@ $( document ).ready(function() {
 	  }
 	});
 	$( "#autotune-btn" ).click(function() { 
-		if (autotuned_audio) { 
-			autotuned_audio.play(); 
+		if (autotuned_audio) { autotuned_audio.play(); }
+		else if (recorded_audio) { 
+			getAutotune(); 
 			$('#playback-btn').prop('disabled', false);
 		}
-		else if (recorded_audio) { getAutotune(); }
 	});
 	$( "#playback-btn" ).click(function() { 
 		if (recorded_audio) { recorded_audio.play(); }
+		completeExercise();
 	});
 	$( "#play-btn" ).click(function() { 
 		playExercise();
 		$('#record-btn').prop('disabled', false);
 	});
-	$('#record-btn').prop('disabled', true);
-	$('#playback-btn').prop('disabled', true);
-	$('#autotune-btn').prop('disabled', true);
 	$( "#signin-btn" ).click(function() { 
 		username = $( "#userName" ).val();
 		var level = $("#level-select").find("option:selected").text();
@@ -47,10 +50,15 @@ $( document ).ready(function() {
 			$("#level").text(level);
 			var levelNum = parseInt(level[6]);
 			loadExercises(levelNum);
-			$("#dimScreen").hide();
 			$('#signin').modal('hide');	
 		};
 	});
+	$( "#complete-level-btn" ).click(function() { 
+		var cur_level_num = current_level[0].level
+		completeLevel(cur_level_num);
+		$('#complete-level').modal('hide');
+	});
+	$('#signin').modal('show');
 });
 
 /**
@@ -173,6 +181,49 @@ function loadExercises(level) {
 	current_exercise_num = 0; // Start counter for current exercise
 	var exercise = current_level[current_exercise_num];
 	$( "#exercise" ).text( exercise.text );
+	$( "#score" ).text( "Score: 0" );
+}
+
+function completeExercise() { 
+	// Update progress bar
+	$("#progress").css("width", String(100*(current_exercise_num + 1)/current_level.length) + "%");
+	current_exercise_num += 1;
+	if (current_exercise_num == current_level.length) {
+	    setTimeout(
+	        function(){
+	            $('#complete-level').modal('show');
+	    }, 1000); 
+	} else { 
+		// Reset buttons
+		$('#record-btn').prop('disabled', true);
+		$('#playback-btn').prop('disabled', true);
+		$('#autotune-btn').prop('disabled', true);
+
+		// Clear out saved audio
+		recorded_audio = null;
+		autotuned_audio = null;
+		// Load new prompt
+		var exercise = current_level[current_exercise_num];
+		$( "#exercise" ).text( exercise.text )
+	}
+}
+
+function completeLevel(level) {
+	// Reset buttons
+	$('#record-btn').prop('disabled', true);
+	$('#playback-btn').prop('disabled', true);
+	$('#autotune-btn').prop('disabled', true);
+	$("#progress").css("width", "0%");
+	// Clear out saved audio
+	recorded_audio = null;
+	autotuned_audio = null; 
+	if (level==NUM_LEVELS) { 
+		console.log("TODO"); // Figure out what to do if finished all levels
+	} else { 
+		current_level = EXERCISES[level]; // Load exercises
+		current_exercise_num = 0; // Start counter for current exercise
+		$( "#exercise" ).text( current_level[current_exercise_num].text );
+	}
 }
 
 

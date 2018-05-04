@@ -3,7 +3,6 @@ import numpy as np
 from flask import Flask, render_template, request, send_file, make_response
 from werkzeug.datastructures import FileStorage
 from scipy.io import wavfile
-from io import StringIO
 from pitch_scaling import pitch_scale
 from pitch_detection import detect_pitches
 
@@ -47,7 +46,7 @@ class Intunation(object):
 		    frame_lens.append(end_frame - start_time)
 		    autotuned.extend(pitch_scale(fs, snd[start_frame:end_frame], true_pitch/detected_pitch))
 		autotuned = np.array(autotuned, dtype=np.int16)
-		score = 1 - np.sqrt(np.average(scores, weights=frame_lens))
+		score = np.sqrt(np.average(scores, weights=frame_lens))
 		return score, fs, autotuned
 
 	def render_html(self):
