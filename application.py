@@ -46,7 +46,7 @@ class Intunation(object):
 		    frame_lens.append(end_frame - start_time)
 		    autotuned.extend(pitch_scale(fs, snd[start_frame:end_frame], true_pitch/detected_pitch))
 		autotuned = np.array(autotuned, dtype=np.int16)
-		score = np.sqrt(np.average(scores, weights=frame_lens))
+		score = max(1 - np.sqrt(np.average(scores, weights=frame_lens)), 0.)
 		return score, fs, autotuned
 
 	def render_html(self):
