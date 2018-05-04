@@ -37,7 +37,6 @@ class Intunation(object):
 		detected_pitches = detect_pitches(fs, snd)[0]
 		true_pitch = 440.0 # needs to be changed to take in exercise cues.
 		autotuned, scores, frame_lens = [], [], []
-		print "DETECTED PITCHES: ", detected_pitches
 		for ix, (start_time, detected_pitch) in enumerate(detected_pitches):
 		    start_frame = int(start_time * fs)
 		    end_frame = len(snd) if ix == len(detected_pitches) - 1 else int(detected_pitches[ix+1][0]*fs)

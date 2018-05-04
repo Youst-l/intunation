@@ -26,6 +26,34 @@ body {
   solid #ccc;
 }
 
+#audioDisp { 
+
+}
+
 #exercise { 
   font-size:1.25em;
+}
+
+#record-btn.btn-success { 
+  background-color: purple;
+  border-color: DarkMagenta;
+}
+#record-btn.:disabled {
+  background-color: mediumorchid;
+  border-color: orchid;
+}
+
+#audioDisp { 
+  vertical-align: middle;
+}
+
+.wavesurferCont { 
+  width : 70%;
+  display:inline-block;
+  vertical-align: middle;
+}
+
+.wavesurferPlay { 
+  display:inline-block;
+  vertical-align: middle;
 }

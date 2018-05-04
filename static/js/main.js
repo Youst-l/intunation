@@ -1,18 +1,20 @@
 var RECORDING = false;
 var audio_context = new AudioContext();
+var analyzer = audio_context.createAnalyser()
+analyzer.connect(audio_context.destination);
 var current_level;
 var current_exercise_num;
 var recorded_audio;
 var autotuned_audio;
 var username;
 var level;
+var wavesurferRecorded;
+var wavesurferAutotuned
 var NUM_LEVELS = 3;
 
 $( document ).ready(function() {
     console.log( "ready!" );
-    $('#record-btn').prop('disabled', true);
-	$('#playback-btn').prop('disabled', true);
-	$('#autotune-btn').prop('disabled', true);
+    clearAudio();
     $('#signin').modal({backdrop: 'static', keyboard: false})
     $('#complete-level').modal({backdrop: 'static', keyboard: false})
     $('#complete-level').modal('hide');
@@ -28,14 +30,12 @@ $( document ).ready(function() {
 	  }
 	});
 	$( "#autotune-btn" ).click(function() { 
-		if (autotuned_audio) { autotuned_audio.play(); }
-		else if (recorded_audio) { 
+		if (recorded_audio && !autotuned_audio) { 
 			getAutotune(); 
-			$('#playback-btn').prop('disabled', false);
+			$('#ok-btn').prop('disabled', false);
 		}
 	});
-	$( "#playback-btn" ).click(function() { 
-		if (recorded_audio) { recorded_audio.play(); }
+	$( "#ok-btn" ).click(function() { 
 		completeExercise();
 	});
 	$( "#play-btn" ).click(function() { 
@@ -57,6 +57,9 @@ $( document ).ready(function() {
 		var cur_level_num = current_level[0].level
 		completeLevel(cur_level_num);
 		$('#complete-level').modal('hide');
+	});
+	$( ".wavesurferPlay" ).click(function() { 
+		$(this).find('i').toggleClass('glyphicon glyphicon-arrow-pause').toggleClass('glyphicon glyphicon-arrow-play');
 	});
 	$('#signin').modal('show');
 });
@@ -109,6 +112,8 @@ function stopRecording() {
     recorder && recorder.exportWAV(function (blob) {
             var audioUrl = URL.createObjectURL(blob);
             recorded_audio = new Audio(audioUrl);
+			wavesurferRecorded.loadBlob(blob);
+			$( "#wsRPlay" ).prepend("<button class=\"btn btn-primary wavesurferPlay\" onclick=\"wavesurferRecorded.playPause()\"><i class=\"glyphicon glyphicon-play\"></i></button>");
             recorded_audio.crossOrigin="anonymous";
             sendRecording(blob);
             recorder.clear();
@@ -143,8 +148,8 @@ function getAutotune() {
 		var reader = new FileReader();
 		var blobData = new Blob([data], { type: 'audio/wav' });
 		dataUrl = URL.createObjectURL(blobData);
-		autotuned_audio = new Audio("http://127.0.0.1:5000/score_recording");
-		autotuned_audio.crossOrigin="anonymous";
+		wavesurferAutotuned.load("http://127.0.0.1:5000/score_recording");
+		$( "#wsAPlay" ).prepend("<button class=\"btn btn-primary wavesurferPlay\" onclick=\"wavesurferAutotuned.playPause()\"><i class=\"glyphicon glyphicon-play\"></i></button>");
 		$.ajax({
 		  type: "GET",
 		  url: "/score",
@@ -152,7 +157,6 @@ function getAutotune() {
 		}).done(function(data) {
 			$( "#score" ).text( "Score: " + data );
 		});
-		autotuned_audio.play();
 	});
 }
 
@@ -162,7 +166,7 @@ function playExercise() {
 	var oscillator = audio_context.createOscillator();
 	oscillator.type = 'sine';
 	var total_duration = 0
-    oscillator.connect(audio_context.destination);
+    oscillator.connect(analyzer);
     for (i=0; i<freqs.length; i++) { 
     	oscillator.frequency.setValueAtTime(freqs[i], audio_context.currentTime + total_duration);
     	total_duration += times[i];
@@ -171,7 +175,7 @@ function playExercise() {
     setTimeout(
         function(){
             oscillator.stop();
-            oscillator.disconnect(audio_context.destination);
+            oscillator.disconnect(analyzer);
     }, total_duration*1000);
 }
 
@@ -194,14 +198,7 @@ function completeExercise() {
 	            $('#complete-level').modal('show');
 	    }, 1000); 
 	} else { 
-		// Reset buttons
-		$('#record-btn').prop('disabled', true);
-		$('#playback-btn').prop('disabled', true);
-		$('#autotune-btn').prop('disabled', true);
-
-		// Clear out saved audio
-		recorded_audio = null;
-		autotuned_audio = null;
+		clearAudio();
 		// Load new prompt
 		var exercise = current_level[current_exercise_num];
 		$( "#exercise" ).text( exercise.text )
@@ -210,13 +207,9 @@ function completeExercise() {
 
 function completeLevel(level) {
 	// Reset buttons
-	$('#record-btn').prop('disabled', true);
-	$('#playback-btn').prop('disabled', true);
-	$('#autotune-btn').prop('disabled', true);
+	clearAudio()
 	$("#progress").css("width", "0%");
 	// Clear out saved audio
-	recorded_audio = null;
-	autotuned_audio = null; 
 	if (level==NUM_LEVELS) { 
 		console.log("TODO"); // Figure out what to do if finished all levels
 	} else { 
@@ -225,6 +218,34 @@ function completeLevel(level) {
 		$( "#exercise" ).text( current_level[current_exercise_num].text );
 	}
 }
+
+function clearAudio() { 
+	$('#record-btn').prop('disabled', true);
+	$('#ok-btn').prop('disabled', true);
+	$('#autotune-btn').prop('disabled', true);
+	recorded_audio = null;
+	autotuned_audio = null; 
+	$("#wavesurferRecorded").empty();
+	$("#wavesurferAutotuned").empty();
+	$("#wsRPlay").empty();
+	$("#wsAPlay").empty();
+	wavesurferRecorded = WaveSurfer.create({
+	    container: '#wavesurferRecorded',
+	    waveColor: 'purple',
+	    progressColor: 'violet',
+	    barHeight: 2, 
+	    barWidth: 2, 
+	    hideScrollbar: true
+	});
+	wavesurferAutotuned = WaveSurfer.create({
+	    container: '#wavesurferAutotuned',
+	    waveColor: 'orange',
+	    progressColor: 'coral', 
+	    barHeight: 2,
+	    barWidth: 2, 
+	    hideScrollbar: true
+	});
+};
 
 
 
