@@ -1,16 +1,27 @@
 // Sample exercise description; i.e. Level 0: Sing one pitch @ 440 Hz
 var exampleOneNote440 = {
-    times: [0.], 	// time stamps, i.e. at time 0...
+    times: [2.], 	// durations, i.e. for 2 seconds
     freqs: [440.],  // ... we play 440 Hz 
-    level: 0,
+    level: 1,
+    text: "Please sing a concert A"
+};
+
+// Sample exercise description; i.e. Level 0: Sing one pitch @ 440 Hz
+var exampleOneNote260 = {
+    times: [2.], 	// durations, i.e. for 2 seconds
+    freqs: [260.],  // ... we play 260 Hz 
+    level: 1,
+    text: "Please sing a middle C"
 };
 
 // Level 1: Sing an octave interval
-var exampleMajor3rd = {
-    times: [0., 2.], 	  // time stamps, i.e. at time 0...
+var exampleOctave = {
+    times: [2., 2.], 	  // durations, i.e. for 2 seconds
     freqs: [440., 880.],  // ... we play 440 Hz, at time 2sec we play 880
-    level: 1,			  
+    level: 2,	
+    text: "Please sing an A4 and then an A5."		  
 };
 
-var LEVEL_0 = [exampleOneNote440]; // keep variables for all exercises of a given level so we can sample randomly
-var LEVEL_1 = [exampleMajor3rd];
+var LEVEL_1 = [exampleOneNote440, exampleOneNote260]; // keep variables for all exercises of a given level so we can sample randomly
+var LEVEL_2 = [exampleOctave];
+var EXERCISES = [LEVEL_1, LEVEL_2];

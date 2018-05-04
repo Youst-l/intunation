@@ -17,6 +17,7 @@ class Intunation(object):
 		self.current_pitch_detection = None
 		self.current_autotune = None
 		self.score = 0 
+		self.current_exercise = None # tuple (freqs, dur) of frequencies and associated durations
 		self.app.add_url_rule('/', view_func=self.render_html)
 		self.app.add_url_rule('/get_exercise', view_func=self.get_exercise, methods=['GET'])
 		self.app.add_url_rule('/save_recording', view_func=self.save_recording, methods=['POST'])
@@ -57,6 +58,9 @@ class Intunation(object):
 
 	def save_recording(self):
 		fs, data = wavfile.read(request.files['file'])
+		freq_string = request.form['freqs'].encode('utf-8')[1:-1].split(",")
+		dur_string = request.form['times'].encode('utf-8')[1:-1].split(",")
+		self.current_exercise = ([float(i) for i in freq_string], [float(i) for i in dur_string])
 		self.current_fs = fs
 		self.current_recording = np.sum(data, axis=1) / 2
 		return 'OK'

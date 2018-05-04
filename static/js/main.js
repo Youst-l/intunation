@@ -1,6 +1,7 @@
 var RECORDING = false;
 var audio_context = new AudioContext();
-var current_exercise;
+var current_level;
+var current_exercise_num;
 var recorded_audio;
 var autotuned_audio;
 var username;
@@ -40,10 +41,12 @@ $( document ).ready(function() {
 	$('#autotune-btn').prop('disabled', true);
 	$( "#signin-btn" ).click(function() { 
 		username = $( "#userName" ).val();
-		level = $("#level-select").find("option:selected").text();
+		var level = $("#level-select").find("option:selected").text();
 		if (username != "") { 
 			$("#user").html("Welcome, " + "<strong>" + username + "</strong>");
 			$("#level").text(level);
+			var levelNum = parseInt(level[6]);
+			loadExercises(levelNum);
 			$("#dimScreen").hide();
 			$('#signin').modal('hide');	
 		};
@@ -110,8 +113,9 @@ POST request received by Flask and handled internally server-side.
 */
 sendRecording = function(blob) {
 	var formData = new FormData()
+	formData.append('freqs', JSON.stringify(current_level[current_exercise_num].freqs));
+    formData.append('times', JSON.stringify(current_level[current_exercise_num].times));
     formData.append('file', blob, 'audio') 
-    formData.append('title', 'lol'); // filler for sending exercise data
 	$.ajax({
 	  type: "POST",
 	  url: "/save_recording",
@@ -145,16 +149,30 @@ function getAutotune() {
 }
 
 function playExercise() { 
+	var times = current_level[current_exercise_num].times;
+	var freqs = current_level[current_exercise_num].freqs;
 	var oscillator = audio_context.createOscillator();
 	oscillator.type = 'sine';
-    oscillator.frequency.value = 440; // value in hertz
+	var total_duration = 0
     oscillator.connect(audio_context.destination);
+    for (i=0; i<freqs.length; i++) { 
+    	oscillator.frequency.setValueAtTime(freqs[i], audio_context.currentTime + total_duration);
+    	total_duration += times[i];
+    };
     oscillator.start();
     setTimeout(
         function(){
             oscillator.stop();
             oscillator.disconnect(audio_context.destination);
-    }, 2000);
+    }, total_duration*1000);
+}
+
+
+function loadExercises(level) { 
+	current_level = EXERCISES[level-1]; // Load exercises
+	current_exercise_num = 0; // Start counter for current exercise
+	var exercise = current_level[current_exercise_num];
+	$( "#exercise" ).text( exercise.text );
 }
 
 
