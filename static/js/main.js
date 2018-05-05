@@ -16,17 +16,19 @@ $( document ).ready(function() {
     console.log( "ready!" );
     clearAudio();
     $('#signin').modal({backdrop: 'static', keyboard: false})
+	$.each(LEVEL_TEXT_MAP, function(index, value) {
+	    $("#level-select").append($("<option />").html(value));
+	});
     $('#complete-level').modal({backdrop: 'static', keyboard: false})
     $('#complete-level').modal('hide');
-    $( "#record-btn" ).click(function() {
+    $( "#record-btn" ).click(function() { 
 	  if (RECORDING) { 
 	  	stopRecording();
-	  	$(this).removeClass("btn btn-danger").addClass("btn btn-primary"); 
+	  	$("#record-btn").removeClass("btn btn-danger").addClass("btn btn-record"); 
 	  	$('#autotune-btn').prop('disabled', false);
 	  }
 	  else { 
-	  	startRecording();
-	  	$(this).removeClass("btn btn-primary").addClass("btn btn-danger"); 
+	  	startRecordingOnTimer();
 	  }
 	});
 	$( "#autotune-btn" ).click(function() { 
@@ -35,13 +37,8 @@ $( document ).ready(function() {
 			$('#ok-btn').prop('disabled', false);
 		}
 	});
-	$( "#ok-btn" ).click(function() { 
-		completeExercise();
-	});
-	$( "#play-btn" ).click(function() { 
-		playExercise();
-		$('#record-btn').prop('disabled', false);
-	});
+	$( "#ok-btn" ).click(function() { completeExercise(); });
+	$( "#play-btn" ).click(function() { playExercise(); });
 	$( "#signin-btn" ).click(function() { 
 		username = $( "#userName" ).val();
 		var level = $("#level-select").find("option:selected").text();
@@ -73,7 +70,8 @@ $( document ).ready(function() {
 function startRecording() {
 	console.log("STARTING")
 	RECORDING = true;
-	autotuned_audio = null;
+	$("#record-btn").removeClass("btn btn-record").addClass("btn btn-danger"); 
+	$("#recordingCue").empty();
     // Access the Microphone using the navigator.getUserMedia method to obtain a stream
     navigator.getUserMedia({ audio: true }, function (stream) {
         // Expose the stream to be accessible globally
@@ -176,6 +174,7 @@ function playExercise() {
         function(){
             oscillator.stop();
             oscillator.disconnect(analyzer);
+            $('#record-btn').prop('disabled', false);
     }, total_duration*1000);
 }
 
@@ -215,6 +214,7 @@ function completeLevel(level) {
 	} else { 
 		current_level = EXERCISES[level]; // Load exercises
 		current_exercise_num = 0; // Start counter for current exercise
+		$( "#level" ).text( LEVEL_TEXT_MAP[level] );
 		$( "#exercise" ).text( current_level[current_exercise_num].text );
 	}
 }
@@ -246,6 +246,13 @@ function clearAudio() {
 	    hideScrollbar: true
 	});
 };
+
+function startRecordingOnTimer() { 
+	setTimeout(function() { $("#recordingCue").text( "Recording in 3...") }, 1000);
+	setTimeout(function() { $("#recordingCue").text( "Recording in 2...") }, 2000);
+	setTimeout(function() { $("#recordingCue").text( "Recording in 1...") }, 3000);
+	setTimeout(startRecording, 4000);
+}
 
 
 

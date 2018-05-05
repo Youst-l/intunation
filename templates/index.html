@@ -39,14 +39,10 @@
           <h2 class="modal-title">Welcome to <strong>intunation</strong></h2>
         </div>
         <div class="modal-body">
-          <div class="input-group">
-              Username: <input type="text" id="userName" placeholder="Eran Egozy"><br>
+          <div class="input-group form-group">
+              Username: <input type="text" class="form-control" id="userName" placeholder="Eran Egozy"><br>
               Pick your poison:
-              <select id="level-select">
-                <option value="Level 1: Pitch">Level 1: Pitch</option>
-                <option value="Level 2: Interval">Level 2: Interval</option>
-                <option value="Level 3: Melody">Level 3: Melody</option>
-              </select>
+              <select id="level-select" class="form-control"></select>
           </div>
         </div>
         <div class="modal-footer">
@@ -104,7 +100,7 @@
                      <div id="exercise"></div>
                      <br>
                      <button type="button" id="play-btn" class="btn btn-primary">1 <i class="glyphicon glyphicon-play-circle"></i></button>
-                     <button type="button" id="record-btn" class="btn btn-success">2 <i class="glyphicon glyphicon-record"></i></button>
+                     <button type="button" id="record-btn" class="btn btn-record">2 <i class="glyphicon glyphicon-record"></i></button>
                      <button type="button" id="autotune-btn" class="btn btn-warning">3 <i class="glyphicon glyphicon-stats"></i></button>
                      <button type="button" id="ok-btn" class="btn btn-success">4 <i class="glyphicon glyphicon-ok"></i></button>
                   </div>
@@ -115,6 +111,7 @@
                 </div>
                 </div>
                 <div id="audioDisp" class="col-md-8">
+                  <div id="recordingCue"></div>
                   <div>
                     <div id="wsRPlay" class="wavesurferPlay"></div>
                     <div class="wavesurferCont" id="wavesurferRecorded"></div>

@@ -26,3 +26,4 @@ var LEVEL_1 = [exampleOneNote440, exampleOneNote260]; // keep variables for all 
 var LEVEL_2 = [exampleOctave];
 var LEVEL_3 = [];
 var EXERCISES = [LEVEL_1, LEVEL_2, LEVEL_3];
+var LEVEL_TEXT_MAP = ["Level 1: Pitch", "Level 2: Interval", "Level 3: Melody"];

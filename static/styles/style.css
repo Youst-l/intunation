@@ -1,8 +1,8 @@
 @import url(http://fonts.googleapis.com/css?family=Roboto);
-@import url(https://fonts.googleapis.com/css?family=Lato|Oswald);
+@import url(https://fonts.googleapis.com/css?family=Nunito);
 
 body {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Nunito', sans-serif;
 }
 
 /*header {
@@ -17,7 +17,7 @@ body {
 }*/
 
 .modal {
-  background: rgba(40, 40, 210, 0.7);
+  background: rgba(45, 163, 161, 0.7);
 }
 
 #metadata { 
@@ -26,21 +26,27 @@ body {
   solid #ccc;
 }
 
-#audioDisp { 
-
-}
-
 #exercise { 
   font-size:1.25em;
 }
 
-#record-btn.btn-success { 
+.btn-record { 
   background-color: purple;
   border-color: DarkMagenta;
+  color: white;
 }
-#record-btn.:disabled {
+.btn-record:disabled {
   background-color: mediumorchid;
   border-color: orchid;
+  color: white;
+}
+.btn-record:hover:enabled { 
+  background-color: Indigo;
+  border-color: DarkMagenta;
+  color: white;
+}
+.btn-record:focus { 
+  color: white;
 }
 
 #audioDisp { 
