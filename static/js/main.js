@@ -1,7 +1,6 @@
 var RECORDING = false;
-var audio_context = new AudioContext();
-var analyzer = audio_context.createAnalyser()
-analyzer.connect(audio_context.destination);
+var audio_context;
+var analyzer;
 var current_level;
 var current_exercise_num;
 var recorded_audio;
@@ -43,6 +42,9 @@ $( document ).ready(function() {
 		username = $( "#userName" ).val();
 		var level = $("#level-select").find("option:selected").text();
 		if (username != "") { 
+			audio_context = new AudioContext();
+			analyzer = audio_context.createAnalyser();
+			analyzer.connect(audio_context.destination);
 			$("#user").html("Welcome, " + "<strong>" + username + "</strong>");
 			$("#level").text(level);
 			var levelNum = parseInt(level[6]);
