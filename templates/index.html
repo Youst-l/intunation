@@ -36,17 +36,26 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h2 class="modal-title">Welcome to <strong>intunation</strong></h2>
+          <h2 class="modal-title">Welcome to <strong>intunation.</strong></h2>
         </div>
         <div class="modal-body">
-          <div class="input-group form-group">
+          <div id="select-menu" class="input-group form-group">
               Username: <input type="text" class="form-control" id="userName" placeholder="Eran Egozy"><br>
               Pick your poison:
               <select id="level-select" class="form-control"></select>
           </div>
+          <div id="instructions">
+                Here's how to play Intunation...
+                <ol>
+                  <li> Press <i class="glyphicon glyphicon-play-circle"></i> to listen to what you should sing. </li>
+                  <li> Press <i class="glyphicon glyphicon-record"></i> to record the exercise. </li>
+                  <li> Press <i class="glyphicon glyphicon-edit"></i> to autotune the audio and hear how you should sound. </li>
+                  <li> Press <i class="glyphicon glyphicon-ok"></i> to move on to the next exercise! </li>
+                </ol>
+          </div>
         </div>
         <div class="modal-footer">
-          <button type="button" id="signin-btn" class="btn btn-primary">Login</button>
+          <button type="button" id="signin-btn" class="btn btn-primary">Next</button>
         </div>
       </div>
     </div>
@@ -83,6 +92,10 @@
           <li class="nav-item"><a><div id="score"></div></a></li>
           <li class="nav-item"><a><div id="level"></div></a></li>
         </ul>
+        <div class="nav navbar-text progress" style="width: 30%">
+                  <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar"
+                  aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" id="progress"></div>
+                </div>
       </div><!-- /.navbar-collapse -->
     </div><!-- /.container-fluid -->
   </nav>
@@ -101,16 +114,10 @@
                      <br>
                      <button type="button" id="play-btn" class="btn btn-primary">1 <i class="glyphicon glyphicon-play-circle"></i></button>
                      <button type="button" id="record-btn" class="btn btn-record">2 <i class="glyphicon glyphicon-record"></i></button>
-                     <button type="button" id="autotune-btn" class="btn btn-warning">3 <i class="glyphicon glyphicon-stats"></i></button>
+                     <button type="button" id="autotune-btn" class="btn btn-warning">3 <i class="glyphicon glyphicon-edit"></i></button>
                      <button type="button" id="ok-btn" class="btn btn-success">4 <i class="glyphicon glyphicon-ok"></i></button>
                   </div>
                   <br>
-                  <div class="progress">
-                  <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar"
-                  aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" id="progress"></div>
-                </div>
-                </div>
-                <div id="audioDisp" class="col-md-8">
                   <div id="recordingCue"></div>
                   <div>
                     <div id="wsRPlay" class="wavesurferPlay"></div>
@@ -120,6 +127,13 @@
                     <div id="wsAPlay" class="wavesurferPlay"></div>
                     <div class="wavesurferCont" id="wavesurferAutotuned"></div>
                   </div>
+                
+                </div>
+                <div id="audioDisp" class="col-md-8">
+                  <div id="progContainer" class="progress">
+                    <div class="progress-bar btn-record progress-bar-striped" role="progressbar"
+                    aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="record-progress"></div>
+                </div>
                 </div>
             </div>
         </div>

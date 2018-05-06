@@ -14,6 +14,8 @@ var NUM_LEVELS = 3;
 $( document ).ready(function() {
     console.log( "ready!" );
     clearAudio();
+    $("#instructions").hide();
+    $("#progContainer").hide();
     $('#signin').modal({backdrop: 'static', keyboard: false})
 	$.each(LEVEL_TEXT_MAP, function(index, value) {
 	    $("#level-select").append($("<option />").html(value));
@@ -21,14 +23,8 @@ $( document ).ready(function() {
     $('#complete-level').modal({backdrop: 'static', keyboard: false})
     $('#complete-level').modal('hide');
     $( "#record-btn" ).click(function() { 
-	  if (RECORDING) { 
-	  	stopRecording();
-	  	$("#record-btn").removeClass("btn btn-danger").addClass("btn btn-record"); 
-	  	$('#autotune-btn').prop('disabled', false);
-	  }
-	  else { 
-	  	startRecordingOnTimer();
-	  }
+	  if (RECORDING) { stopRecording(); }
+	  else { startRecordingOnTimer(); }
 	});
 	$( "#autotune-btn" ).click(function() { 
 		if (recorded_audio && !autotuned_audio) { 
@@ -38,20 +34,7 @@ $( document ).ready(function() {
 	});
 	$( "#ok-btn" ).click(function() { completeExercise(); });
 	$( "#play-btn" ).click(function() { playExercise(); });
-	$( "#signin-btn" ).click(function() { 
-		username = $( "#userName" ).val();
-		var level = $("#level-select").find("option:selected").text();
-		if (username != "") { 
-			audio_context = new AudioContext();
-			analyzer = audio_context.createAnalyser();
-			analyzer.connect(audio_context.destination);
-			$("#user").html("Welcome, " + "<strong>" + username + "</strong>");
-			$("#level").text(level);
-			var levelNum = parseInt(level[6]);
-			loadExercises(levelNum);
-			$('#signin').modal('hide');	
-		};
-	});
+	$( "#signin-btn" ).click( function() { signIn(); });
 	$( "#complete-level-btn" ).click(function() { 
 		var cur_level_num = current_level[0].level
 		completeLevel(cur_level_num);
@@ -70,6 +53,8 @@ $( document ).ready(function() {
  * It only stops when the method stopRecording is triggered.
  */
 function startRecording() {
+	clearAudio();
+	$('#record-btn').prop('disabled', false);
 	console.log("STARTING")
 	RECORDING = true;
 	$("#record-btn").removeClass("btn btn-record").addClass("btn btn-danger"); 
@@ -93,6 +78,16 @@ function startRecording() {
     }, function (e) {
         console.error('No live audio input: ' + e);
     });
+    var sum = current_level[current_exercise_num].times.reduce(function (accumulator, currentValue) {
+	  		return accumulator + currentValue;
+		}, 0);
+    console.log(sum);
+    var lol = Date.now()
+    $('#record-progress').animate({width: 100}, {duration: sum*1000, complete: function(){
+    	stopRecording();
+    	console.log(Date.now() - lol);
+    }});
+    $("#progContainer").show();
 }
 
 /**
@@ -118,6 +113,10 @@ function stopRecording() {
             sendRecording(blob);
             recorder.clear();
         }, "audio/wav");
+    $("#record-progress").css("width", "0%");
+    $("#progContainer").hide();
+    $("#record-btn").removeClass("btn btn-danger").addClass("btn btn-record"); 
+	$('#autotune-btn').prop('disabled', false);
 }
 
 /**
@@ -256,6 +255,29 @@ function startRecordingOnTimer() {
 	setTimeout(startRecording, 4000);
 }
 
+function signIn() { 
+	// Crappy JS, here just because hacky solution was quicker
+	// Either text is on Next (go to instructions), or Submit (enter app)
+	if ($("#signin-btn").text() == "Next") { 
+		username = $( "#userName" ).val();
+		var level = $("#level-select").find("option:selected").text();
+		if (username != "") { 
+			audio_context = new AudioContext();
+			analyzer = audio_context.createAnalyser();
+			analyzer.connect(audio_context.destination);
+			$("#user").html("Welcome, " + "<strong>" + username + "</strong>");
+			$("#level").text(level);
+			var levelNum = parseInt(level[6]);
+			loadExercises(levelNum);	
+			$("#select-menu").empty();
+			$("#signin-btn").text("Login");
+			$("#instructions").show();
+		};
+	} else { 
+		$('#signin').modal('hide');	
+	}
+
+}
 
 
 
