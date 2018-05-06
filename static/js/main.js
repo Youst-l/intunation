@@ -15,7 +15,7 @@ $( document ).ready(function() {
     console.log( "ready!" );
     clearAudio();
     $("#instructions").hide();
-    $("#progContainer").hide();
+    $("#progressTimer").hide();
     $('#signin').modal({backdrop: 'static', keyboard: false})
 	$.each(LEVEL_TEXT_MAP, function(index, value) {
 	    $("#level-select").append($("<option />").html(value));
@@ -82,12 +82,18 @@ function startRecording() {
 	  		return accumulator + currentValue;
 		}, 0);
     console.log(sum);
-    var lol = Date.now()
-    $('#record-progress').animate({width: 100}, {duration: sum*1000, complete: function(){
-    	stopRecording();
-    	console.log(Date.now() - lol);
-    }});
-    $("#progContainer").show();
+    $("#progressTimer").progressTimer({
+    	timeLimit: sum,
+    	warningThreshold: 10,
+    	baseStyle: 'progress-bar-warning',
+    	warningStyle: 'progress-bar-danger',
+    	completeStyle: 'progress-bar-info',
+    	onFinish: function() {
+    		stopRecording();
+    		setTimeout(function() { $("#progressTimer").hide(); }, 1000);
+    	}
+    });
+    $("#progressTimer").show();
 }
 
 /**
@@ -108,13 +114,11 @@ function stopRecording() {
             var audioUrl = URL.createObjectURL(blob);
             recorded_audio = new Audio(audioUrl);
 			wavesurferRecorded.loadBlob(blob);
-			$( "#wsRPlay" ).prepend("<button class=\"btn btn-primary wavesurferPlay\" onclick=\"wavesurferRecorded.playPause()\"><i class=\"glyphicon glyphicon-play\"></i></button>");
+			$( "#wsRPlay" ).prepend("<button class=\"btn btn-primary wavesurferPlay\" onclick=\"wavesurferRecorded.playPause()\">Original<i class=\"glyphicon glyphicon-play\"></i></button>");
             recorded_audio.crossOrigin="anonymous";
             sendRecording(blob);
             recorder.clear();
         }, "audio/wav");
-    $("#record-progress").css("width", "0%");
-    $("#progContainer").hide();
     $("#record-btn").removeClass("btn btn-danger").addClass("btn btn-record"); 
 	$('#autotune-btn').prop('disabled', false);
 }
@@ -148,7 +152,7 @@ function getAutotune() {
 		var blobData = new Blob([data], { type: 'audio/wav' });
 		dataUrl = URL.createObjectURL(blobData);
 		wavesurferAutotuned.load("http://127.0.0.1:5000/score_recording");
-		$( "#wsAPlay" ).prepend("<button class=\"btn btn-primary wavesurferPlay\" onclick=\"wavesurferAutotuned.playPause()\"><i class=\"glyphicon glyphicon-play\"></i></button>");
+		$( "#wsAPlay" ).prepend("<button class=\"btn btn-primary wavesurferPlay\" onclick=\"wavesurferAutotuned.playPause()\">Autotune<i class=\"glyphicon glyphicon-play\"></i></button>");
 		$.ajax({
 		  type: "GET",
 		  url: "/score",

@@ -17,6 +17,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/wavesurfer.min.js"></script>
+  <script type=text/javascript src="{{url_for('static', filename='js/progressTimer.js') }}"></script>
   <script type=text/javascript src="{{url_for('static', filename='js/recorder.js') }}"></script>
   <script type=text/javascript src="{{url_for('static', filename='js/exercises.js') }}"></script>
   <script type=text/javascript src="{{url_for('static', filename='js/main.js') }}"></script>
@@ -107,7 +108,7 @@
     <div class="row"> <br>
         <div class="col-md-12">
             <div class="row">
-                <div id="metadata" class="col-md-4">  
+                <div id="metadata" class="col-md-5">  
                   <div id="level"></div>
                   <div id="controls">
                      <div id="exercise"></div>
@@ -119,6 +120,7 @@
                   </div>
                   <br>
                   <div id="recordingCue"></div>
+                  <div id="progressTimer"></div>
                   <div>
                     <div id="wsRPlay" class="wavesurferPlay"></div>
                     <div class="wavesurferCont" id="wavesurferRecorded"></div>
@@ -129,11 +131,7 @@
                   </div>
                 
                 </div>
-                <div id="audioDisp" class="col-md-8">
-                  <div id="progContainer" class="progress">
-                    <div class="progress-bar btn-record progress-bar-striped" role="progressbar"
-                    aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="record-progress"></div>
-                </div>
+                <div id="audioDisp" class="col-md-7">
                 </div>
             </div>
         </div>

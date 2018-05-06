@@ -34,14 +34,14 @@ var Octave = {
     times: [2., 2.], 	  // durations, i.e. for 2 seconds
     freqs: [440., 880.],  // ... we play 440 Hz, at time 2sec we play 880
     level: 2,	
-    text: "Please sing an A4 and then an A5.  This is an octave"		  
+    text: "Please sing an A4 and then an A5.  This is an octave."		  
 };
 
 var Fifth = {
     times: [2., 2.],
     freqs: [440., 659.],
     level: 2,
-    text: "Please sing an A4 and then an E4.  This is a fifth"
+    text: "Please sing an A4 and then an E4.  This is a fifth."
 };
 
 var Third = {
@@ -55,7 +55,7 @@ var Fourth = {
     times: [2.,2.],
     freqs: [440.,587.],
     level: 2,
-    text: "Please sing an A4 and then a D4.  This is a fourth"
+    text: "Please sing an A4 and then a D4.  This is a fourth."
 };
 
 var Seventh = {
@@ -82,7 +82,7 @@ var Sixth = {
 //Level 3: Short melodies
 
 var HotCrossBuns = {
-    times: [.5,.5,.5],
+    times: [.5,.5,1., .5,.5,1.],
     freqs: [554.,494.,440.,554.,494.,440.],
     level: 3,
     text: "Please sing the first six notes of hot cross buns."
