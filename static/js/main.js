@@ -143,23 +143,14 @@ sendRecording = function(blob) {
 }
 
 function getAutotune() { 
+	wavesurferAutotuned.load("http://127.0.0.1:5000/score_recording");
+	$( "#wsAPlay" ).prepend("<button class=\"btn btn-primary wavesurferPlay\" onclick=\"wavesurferAutotuned.playPause()\">Autotune<i class=\"glyphicon glyphicon-play\"></i></button>");
 	$.ajax({
 	  type: "GET",
-	  url: "/score_recording",
-	  data: "", // TODO: Change based on exercise
+	  url: "/score",
+	  data: "",
 	}).done(function(data) {
-		var reader = new FileReader();
-		var blobData = new Blob([data], { type: 'audio/wav' });
-		dataUrl = URL.createObjectURL(blobData);
-		wavesurferAutotuned.load("http://127.0.0.1:5000/score_recording");
-		$( "#wsAPlay" ).prepend("<button class=\"btn btn-primary wavesurferPlay\" onclick=\"wavesurferAutotuned.playPause()\">Autotune<i class=\"glyphicon glyphicon-play\"></i></button>");
-		$.ajax({
-		  type: "GET",
-		  url: "/score",
-		  data: "",
-		}).done(function(data) {
-			$( "#score" ).text( "Score: " + data );
-		});
+		$( "#score" ).text( "Score: " + data );
 	});
 }
 

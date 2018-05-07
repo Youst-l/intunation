@@ -15,10 +15,10 @@ Ear training game using autotune
 * Note that there are some caching issues with the GET request to get autotune data so I recommend working in incognito mode or hard refreshing pages; we can try to find an actual non-jank solution
 
 ## TODO
-* Exercises need to be created in JS
-* Python autotune function needs to be smoothed out a lot
-* Noise filtering at the beginning would be helpful/nice
-* An actual interface cuz i don't do frontend lol 
-* Duration of recording, i.e. cue that's like (you have 4 sec to record, record now)
-* Way to select levels etc etc
-
+* Loading function while autotune is being called
+* Making progress bar actually match the timing of recorder
+* Getting rid of jankness when making the autotune API call
+* Visualizations for real time audio stuff
+* Making labels for playback simpler
+* Level complete message + Audio feedback
+* Game complete message

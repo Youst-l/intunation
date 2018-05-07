@@ -46,12 +46,12 @@ def autotune_and_score(fs, snd, cues):
         frame_len = max(frame_len, 0)
         frame_lens += [frame_len]
     
-    score = max(1 - np.sqrt(np.average(scores, weights=frame_lens)), 0.)
-
+    score = max(1 - np.average(scores, weights=frame_lens), 0.)
+    print "SCORE:", score
     return pitch_scale(fs, snd, alphas), score/2.
 
 if __name__ == "__main__":
     fs, snd = wavfile.read('samples/3notes_human.wav')
     autotuned_signal, score = autotune_and_score(fs, snd, [(0, 440)])
     print score
-    play_signal(autotuned_signal)
+    #play_signal(autotuned_signal)
