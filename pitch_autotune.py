@@ -27,9 +27,9 @@ def autotune_and_score(fs, snd, cues):
                 break
         t = max(pitches[pitch_idx][0], cues[cue_idx][0])
         alpha = cues[cue_idx][1]/pitches[pitch_idx][1]
-        while alpha > 2:
+        while alpha > 2 ** 0.5:
             alpha /= 2
-        while alpha < 0.5:
+        while alpha < 2 ** -0.5:
             alpha *= 2
         alphas += [(t, alpha)]
     print "ALPHAS:", alphas

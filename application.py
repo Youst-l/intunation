@@ -49,6 +49,7 @@ class Intunation(object):
 
 		fs, snd = self.current_fs, self.current_recording
 		autotuned, score = autotune_and_score(fs, snd, exercise_cues)
+		autotuned = np.array(autotuned, dtype=np.int16)
 		return score, fs, autotuned
 
 	def render_html(self):
@@ -71,7 +72,7 @@ class Intunation(object):
 		
 	def score_recording(self):
 		if self.current_recording.size != 0 and self.current_fs:
-			score, fs, snd = self.autotune([]) # TODO: should pass in cues after implementing autotune
+			score, fs, snd = self.autotune([(0, 440)]) # TODO: should pass in cues after implementing autotune
 			self.score += score
 			wavfile.write('autotune.wav', fs, snd)
 			r = send_file('autotune.wav', mimetype='audio/wav', as_attachment=True, attachment_filename='autotune.wav')

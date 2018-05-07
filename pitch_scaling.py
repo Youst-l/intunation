@@ -75,7 +75,8 @@ def pitch_scale(fs, snd, alphas):
     alpha: the factor by which to pitch scale
     """
     assert(snd.ndim == 1) # Only allow mono recordings
-    return scale_pitch_many_alphas(fs, snd, alphas)
+    output = scale_pitch_many_alphas(fs, snd, alphas)
+    return output
 
 if __name__ == "__main__":
     fs, snd = wavfile.read('samples/3notes_human.wav')
