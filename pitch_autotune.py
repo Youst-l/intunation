@@ -34,7 +34,21 @@ def autotune_and_score(fs, snd, cues):
         alphas += [(t, alpha)]
     print "ALPHAS:", alphas
 
-    return pitch_scale(fs, snd, alphas), 1
+    scores = []
+    frame_lens = []
+    for i in range(len(alphas)):
+        scores += [np.abs(np.log(alphas[i][1]))]
+        frame_len = 0
+        if i+1 < len(alphas):
+            frame_len = alphas[i+1][0] - alphas[i][0]
+        else:
+            frame_len = len(snd)*1./fs - alphas[i][0]
+        frame_len = max(frame_len, 0)
+        frame_lens += [frame_len]
+    
+    score = max(1 - np.sqrt(np.average(scores, weights=frame_lens)), 0.)
+
+    return pitch_scale(fs, snd, alphas), score/2.
 
 if __name__ == "__main__":
     fs, snd = wavfile.read('samples/3notes_human.wav')
