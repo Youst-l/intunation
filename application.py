@@ -3,8 +3,7 @@ import numpy as np
 from flask import Flask, render_template, request, send_file, make_response
 from werkzeug.datastructures import FileStorage
 from scipy.io import wavfile
-from pitch_scaling import pitch_scale
-from pitch_detection import detect_pitches
+from pitch_autotune import autotune_and_score
 
 class Intunation(object):
 	app = None
@@ -33,19 +32,23 @@ class Intunation(object):
 		where (a1, b2) is a (timestamp (in seconds), note (in frequency)) pair.
 		TODO: Implement with exercise cues rather than one pitch; exercise cues can be sent from JS. 
 		"""
+		#fs, snd = self.current_fs, self.current_recording
+		#detected_pitches = detect_pitches(fs, snd)[0]
+		#true_pitch = 440.0 # needs to be changed to take in exercise cues.
+		#autotuned, scores, frame_lens = [], [], []
+		#for ix, (start_time, detected_pitch) in enumerate(detected_pitches):
+		#    start_frame = int(start_time * fs)
+		#    end_frame = len(snd) if ix == len(detected_pitches) - 1 else int(detected_pitches[ix+1][0]*fs)
+		#    alpha = true_pitch/detected_pitch
+		#    scores.append(np.abs(np.log(alpha)))
+		#    frame_lens.append(end_frame - start_time)
+		#    autotuned.extend(pitch_scale(fs, snd[start_frame:end_frame], true_pitch/detected_pitch))
+		#autotuned = np.array(autotuned, dtype=np.int16)
+		#score = max(1 - np.sqrt(np.average(scores, weights=frame_lens)), 0.)
+		#return score, fs, autotuned
+
 		fs, snd = self.current_fs, self.current_recording
-		detected_pitches = detect_pitches(fs, snd)[0]
-		true_pitch = 440.0 # needs to be changed to take in exercise cues.
-		autotuned, scores, frame_lens = [], [], []
-		for ix, (start_time, detected_pitch) in enumerate(detected_pitches):
-		    start_frame = int(start_time * fs)
-		    end_frame = len(snd) if ix == len(detected_pitches) - 1 else int(detected_pitches[ix+1][0]*fs)
-		    alpha = true_pitch/detected_pitch
-		    scores.append(np.abs(np.log(alpha)))
-		    frame_lens.append(end_frame - start_time)
-		    autotuned.extend(pitch_scale(fs, snd[start_frame:end_frame], true_pitch/detected_pitch))
-		autotuned = np.array(autotuned, dtype=np.int16)
-		score = max(1 - np.sqrt(np.average(scores, weights=frame_lens)), 0.)
+		autotuned, score = autotune_and_score(fs, snd, exercise_cues)
 		return score, fs, autotuned
 
 	def render_html(self):
