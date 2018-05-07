@@ -1,28 +1,59 @@
+@import url(http://fonts.googleapis.com/css?family=Roboto);
+@import url(https://fonts.googleapis.com/css?family=Nunito);
+
 body {
-  font-family: 'Lato', sans-serif;
-  margin: 0;
-  height: 100vh;
-  max-height: 100vh;
-
-  display: grid;
-  grid-template-rows: 6em auto 5em;
-  grid-template-columns: 1fr 3fr 1fr;
+  font-family: 'Nunito', sans-serif;
 }
 
-header {
-  grid-column: 1 / span 3;
-  grid-row: 1;
-  font-family: 'Oswald', sans-serif;
-  background-color: rgb(244, 66, 182);
-  font-size: 1.5em;
-  text-align: center;
-  padding: 0em;
+.modal {
+  background: rgba(45, 163, 161, 0.7);
 }
 
-button {
-    font-family: 'Lato', sans-serif;
-    font-size: 1em;
-    border: 1px rgb(117, 117, 117) solid;
-    padding: 0.25em 0.5em;
-    margin: 0 0.25em;
+#metadata { 
+  padding-right:20px; 
+  border-right: 1px 
+  solid #ccc;
+}
+
+#exercise { 
+  font-size:1.25em;
+}
+
+.btn-record { 
+  background-color: purple;
+  border-color: DarkMagenta;
+  color: white;
+}
+.btn-record:disabled {
+  background-color: mediumorchid;
+  border-color: orchid;
+  color: white;
+}
+.btn-record:hover:enabled { 
+  background-color: Indigo;
+  border-color: DarkMagenta;
+  color: white;
+}
+.btn-record:focus { 
+  color: white;
+}
+
+#audioDisp { 
+  vertical-align: middle;
+}
+
+.wavesurferCont { 
+  width : 70%;
+  display:inline-block;
+  vertical-align: middle;
+}
+
+.wavesurferPlay { 
+  display:inline-block;
+  vertical-align: middle;
+}
+
+.record-timer {
+  transition: width 0.5s;
+  -webkit-transition: width 0.5s;
 }

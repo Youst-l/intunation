@@ -10,12 +10,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
   <!-- Load style sheets -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato|Oswald">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/style.css') }}">
 
   <!-- Load jQuery and whatever other JS we need -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/wavesurfer.min.js"></script>
+  <script type=text/javascript src="{{url_for('static', filename='js/progressTimer.js') }}"></script>
   <script type=text/javascript src="{{url_for('static', filename='js/recorder.js') }}"></script>
+  <script type=text/javascript src="{{url_for('static', filename='js/exercises.js') }}"></script>
   <script type=text/javascript src="{{url_for('static', filename='js/main.js') }}"></script>
 
 
@@ -23,23 +27,123 @@
 
 <body>
 
-<header>
-  <h1>intunation</h1>
-</header>
+  <!-- HEADER -->
+<!--   <header>
+    <h1>intunation.</h1>
+  </header> -->
 
-<div id="score">Score: 0</div>
-<div id="controls">
-   <div id="exercise"> Please record a concert A. </div>
-   <button id="play-btn">Play Note</button>
-   <button id="record-btn">Record</button>
-   <button id="playback-btn">Playback Recording</button>
-   <button id="autotune-btn">Autotune/Score</button>
+  <!-- SIGN IN MODAL -->
+  <div class="modal" id="signin" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">Welcome to <strong>intunation.</strong></h2>
+        </div>
+        <div class="modal-body">
+          <div id="select-menu" class="input-group form-group">
+              Username: <input type="text" class="form-control" id="userName" placeholder="Eran Egozy"><br>
+              Pick your poison:
+              <select id="level-select" class="form-control"></select>
+          </div>
+          <div id="instructions">
+                Here's how to play Intunation...
+                <ol>
+                  <li> Press <i class="glyphicon glyphicon-play-circle"></i> to listen to what you should sing. </li>
+                  <li> Press <i class="glyphicon glyphicon-record"></i> to record the exercise. </li>
+                  <li> Press <i class="glyphicon glyphicon-edit"></i> to autotune the audio and hear how you should sound. </li>
+                  <li> Press <i class="glyphicon glyphicon-ok"></i> to move on to the next exercise! </li>
+                </ol>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="signin-btn" class="btn btn-primary">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- SIGN IN MODAL -->
+  <div class="modal" id="complete-level" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">You completed a level!</strong></h2>
+        </div>
+        <div class="modal-body">
+          <button type="button" id="complete-level-btn" class="btn btn-success">Continue</button>
+        </div>
+        <div class="modal-footer">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- USER METADATA -->
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#"><strong>intunation</strong></a>
+      </div>
+
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <li class="nav-item"><a><div id="user"></div></a></li>
+          <li class="nav-item"><a><div id="score"></div></a></li>
+          <li class="nav-item"><a><div id="level"></div></a></li>
+        </ul>
+        <div class="nav navbar-text progress" style="width: 30%">
+                  <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar"
+                  aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" id="progress"></div>
+                </div>
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+  </nav>
+
+
+
+<!-- CORE INTERFACE --> 
+<div class="container">
+    <div class="row"> <br>
+        <div class="col-md-12">
+            <div class="row">
+                <div id="metadata" class="col-md-5">  
+                  <div id="level"></div>
+                  <div id="controls">
+                     <div id="exercise"></div>
+                     <br>
+                     <button type="button" id="play-btn" class="btn btn-primary">1 <i class="glyphicon glyphicon-play-circle"></i></button>
+                     <button type="button" id="record-btn" class="btn btn-record">2 <i class="glyphicon glyphicon-record"></i></button>
+                     <button type="button" id="autotune-btn" class="btn btn-warning">3 <i class="glyphicon glyphicon-edit"></i></button>
+                     <button type="button" id="ok-btn" class="btn btn-success">4 <i class="glyphicon glyphicon-ok"></i></button>
+                  </div>
+                  <br>
+                  <div id="recordingCue"></div>
+                  <div id="progressTimer"></div>
+                  <div>
+                    <div id="wsRPlay" class="wavesurferPlay"></div>
+                    <div class="wavesurferCont" id="wavesurferRecorded"></div>
+                  </div>
+                  <div>
+                    <div id="wsAPlay" class="wavesurferPlay"></div>
+                    <div class="wavesurferCont" id="wavesurferAutotuned"></div>
+                  </div>
+                
+                </div>
+                <div id="audioDisp" class="col-md-7">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row"> 
+      <div id="audio-el">
+        <audio id="playback"></audio>
+        <audio id="autotune"></audio>
+      </div>
+    </div>
 </div>
 
-<div="audio-el">
-  <audio id="playback"></audio>
-  <audio id="autotune"></audio>
-</div>
 </body>
 
 </html>

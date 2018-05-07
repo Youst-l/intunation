@@ -1,9 +1,8 @@
 import numpy as np
 
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, make_response
 from werkzeug.datastructures import FileStorage
 from scipy.io import wavfile
-from io import StringIO
 from pitch_scaling import pitch_scale
 from pitch_detection import detect_pitches
 
@@ -16,10 +15,13 @@ class Intunation(object):
 		self.current_fs = None
 		self.current_pitch_detection = None
 		self.current_autotune = None
+		self.score = 0 
+		self.current_exercise = None # tuple (freqs, dur) of frequencies and associated durations
 		self.app.add_url_rule('/', view_func=self.render_html)
 		self.app.add_url_rule('/get_exercise', view_func=self.get_exercise, methods=['GET'])
 		self.app.add_url_rule('/save_recording', view_func=self.save_recording, methods=['POST'])
 		self.app.add_url_rule('/score_recording', view_func=self.score_recording, methods=['GET'])
+		self.app.add_url_rule('/score', view_func=self.get_score, methods=['GET'])
 		
 	def run(self):
 	    self.app.run()
@@ -35,7 +37,6 @@ class Intunation(object):
 		detected_pitches = detect_pitches(fs, snd)[0]
 		true_pitch = 440.0 # needs to be changed to take in exercise cues.
 		autotuned, scores, frame_lens = [], [], []
-		print "DETECTED PITCHES: ", detected_pitches
 		for ix, (start_time, detected_pitch) in enumerate(detected_pitches):
 		    start_frame = int(start_time * fs)
 		    end_frame = len(snd) if ix == len(detected_pitches) - 1 else int(detected_pitches[ix+1][0]*fs)
@@ -44,7 +45,7 @@ class Intunation(object):
 		    frame_lens.append(end_frame - start_time)
 		    autotuned.extend(pitch_scale(fs, snd[start_frame:end_frame], true_pitch/detected_pitch))
 		autotuned = np.array(autotuned, dtype=np.int16)
-		score = 1 - np.sqrt(np.average(scores, weights=frame_lens))
+		score = max(1 - np.sqrt(np.average(scores, weights=frame_lens)), 0.)
 		return score, fs, autotuned
 
 	def render_html(self):
@@ -55,13 +56,20 @@ class Intunation(object):
 
 	def save_recording(self):
 		fs, data = wavfile.read(request.files['file'])
+		freq_string = request.form['freqs'].encode('utf-8')[1:-1].split(",")
+		dur_string = request.form['times'].encode('utf-8')[1:-1].split(",")
+		self.current_exercise = ([float(i) for i in freq_string], [float(i) for i in dur_string])
 		self.current_fs = fs
 		self.current_recording = np.sum(data, axis=1) / 2
 		return 'OK'
+
+	def get_score(self):
+		return make_response("%0.2f" % (self.score))
 		
 	def score_recording(self):
 		if self.current_recording.size != 0 and self.current_fs:
 			score, fs, snd = self.autotune([]) # TODO: should pass in cues after implementing autotune
+			self.score += score
 			wavfile.write('autotune.wav', fs, snd)
 			r = send_file('autotune.wav', mimetype='audio/wav', as_attachment=True, attachment_filename='autotune.wav')
 			r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
