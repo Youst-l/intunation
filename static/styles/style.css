@@ -52,8 +52,3 @@ body {
   display:inline-block;
   vertical-align: middle;
 }
-
-.record-timer {
-  transition: width 0.5s;
-  -webkit-transition: width 0.5s;
-}

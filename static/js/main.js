@@ -1,6 +1,8 @@
 var RECORDING = false;
 var audio_context;
+var canvasContext;
 var analyzer;
+var meter;
 var current_level;
 var current_exercise_num;
 var recorded_audio;
@@ -11,10 +13,16 @@ var wavesurferRecorded;
 var wavesurferAutotuned
 var NUM_LEVELS = 3;
 var metronome = new Audio('/serve_metronome');
+var WIDTH=10;
+var HEIGHT=20;
+var rafID = null;
 
 $( document ).ready(function() {
     console.log( "ready!" );
     clearAudio();
+    canvasContext = $("#meter")[0].getContext('2d');
+    canvasContext.canvas.width  = 30;
+  	canvasContext.canvas.height = 20;
     $("#instructions").hide();
     $("#progressTimer").hide();
     $('#signin').modal({backdrop: 'static', keyboard: false})
@@ -61,22 +69,9 @@ function startRecording() {
 	$("#record-btn").removeClass("btn btn-record").addClass("btn btn-danger"); 
 	$("#recordingCue").empty();
 	var sum = current_level[current_exercise_num].times.reduce(function (accumulator, currentValue) { return accumulator + currentValue; }, 0);
-    // Access the Microphone using the navigator.getUserMedia method to obtain a stream
-    navigator.getUserMedia({ audio: true }, function (stream) {
-        // Expose the stream to be accessible globally
-        audio_stream = stream;
-        // Create the MediaStreamSource for the Recorder library
-        var input = audio_context.createMediaStreamSource(stream);
-        console.log('Media stream succesfully created');
-
-        // Initialize the Recorder Library
-        recorder = new Recorder(input);
-        console.log('Recorder initialised');
-
-        // Start recording !
-        recorder && recorder.record();
-        console.log('Recording...');
-        $("#progressTimer").progressTimer({
+    recorder && recorder.record();
+    console.log('Recording...');
+    $("#progressTimer").progressTimer({
     	timeLimit: sum,
     	warningThreshold: 10,
     	baseStyle: 'progress-bar-warning',
@@ -88,10 +83,6 @@ function startRecording() {
     	}
     });
     $("#progressTimer").show();
-
-    }, function (e) {
-        console.error('No live audio input: ' + e);
-    });
 }
 
 /**
@@ -107,7 +98,7 @@ function stopRecording() {
     console.log('Stopped recording.');
 
     // Stop the getUserMedia Audio Stream !
-    audio_stream.getAudioTracks()[0].stop();
+    //audio_stream.getAudioTracks()[0].stop();
     recorder && recorder.exportWAV(function (blob) {
             var audioUrl = URL.createObjectURL(blob);
             recorded_audio = new Audio(audioUrl);
@@ -267,6 +258,7 @@ function signIn() {
 			audio_context = new AudioContext();
 			analyzer = audio_context.createAnalyser();
 			analyzer.connect(audio_context.destination);
+			initializeAudio();
 			$("#user").html("Welcome, " + "<strong>" + username + "</strong>");
 			$("#level").text(level);
 			var levelNum = parseInt(level[6]);
@@ -279,6 +271,46 @@ function signIn() {
 		$('#signin').modal('hide');	
 	}
 
+}
+
+function initializeAudio() { 
+    // Access the Microphone using the navigator.getUserMedia method to obtain a stream
+    navigator.getUserMedia({ audio: true }, function (stream) {
+        // Expose the stream to be accessible globally
+        audio_stream = stream;
+        // Create the MediaStreamSource for the Recorder library
+        var input = audio_context.createMediaStreamSource(stream);
+        meter = createAudioMeter(audio_context);
+        drawLoop();
+    	input.connect(meter);
+        console.log('Media stream succesfully created');
+
+        // Initialize the Recorder Library
+        recorder = new Recorder(input);
+        console.log('Recorder initialised');
+
+    }, function (e) {
+        console.error('No live audio input: ' + e);
+    });
+}
+
+
+
+function drawLoop( time ) {
+    // clear the background
+    canvasContext.clearRect(0,0,WIDTH,HEIGHT);
+
+    // check if we're currently clipping
+    if (meter.checkClipping())
+        canvasContext.fillStyle = "red";
+    else
+        canvasContext.fillStyle = "green";
+
+    // draw a bar based on the current volume
+    canvasContext.fillRect(0, 0, meter.volume*WIDTH*1.4, HEIGHT);
+
+    // set up the next visual callback
+    rafID = window.requestAnimationFrame( drawLoop );
 }
 
 

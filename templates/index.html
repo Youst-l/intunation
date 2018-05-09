@@ -18,6 +18,7 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/wavesurfer.min.js"></script>
+  <script type=text/javascript src="{{url_for('static', filename='js/volume-meter.js') }}"></script>
   <script type=text/javascript src="{{url_for('static', filename='js/progressTimer.js') }}"></script>
   <script type=text/javascript src="{{url_for('static', filename='js/recorder.js') }}"></script>
   <script type=text/javascript src="{{url_for('static', filename='js/exercises.js') }}"></script>
@@ -93,11 +94,13 @@
           <li class="nav-item"><a><div id="user"></div></a></li>
           <li class="nav-item"><a><div id="score"></div></a></li>
           <li class="nav-item"><a><div id="level"></div></a></li>
+          <li class="nav-item"><a>Mic:</a></li>
+          <li class="nav-item"><a><canvas id="meter" width="500" height="50"></canvas></a></li>
         </ul>
         <div class="nav navbar-text progress" style="width: 30%">
                   <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar"
                   aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" id="progress"></div>
-                </div>
+        </div>
       </div><!-- /.navbar-collapse -->
     </div><!-- /.container-fluid -->
   </nav>
@@ -133,7 +136,7 @@
                 
                 </div>
                 <div id="audioDisp" class="col-md-7">
-                  <canvas id="audioChart" width="400" height="400"></canvas>
+                  
                 </div>
             </div>
         </div>
