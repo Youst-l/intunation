@@ -10,6 +10,7 @@ var level;
 var wavesurferRecorded;
 var wavesurferAutotuned
 var NUM_LEVELS = 3;
+var metronome = new Audio('/serve_metronome');
 
 $( document ).ready(function() {
     console.log( "ready!" );
@@ -59,6 +60,7 @@ function startRecording() {
 	RECORDING = true;
 	$("#record-btn").removeClass("btn btn-record").addClass("btn btn-danger"); 
 	$("#recordingCue").empty();
+	var sum = current_level[current_exercise_num].times.reduce(function (accumulator, currentValue) { return accumulator + currentValue; }, 0);
     // Access the Microphone using the navigator.getUserMedia method to obtain a stream
     navigator.getUserMedia({ audio: true }, function (stream) {
         // Expose the stream to be accessible globally
@@ -74,15 +76,7 @@ function startRecording() {
         // Start recording !
         recorder && recorder.record();
         console.log('Recording...');
-
-    }, function (e) {
-        console.error('No live audio input: ' + e);
-    });
-    var sum = current_level[current_exercise_num].times.reduce(function (accumulator, currentValue) {
-	  		return accumulator + currentValue;
-		}, 0);
-    console.log(sum);
-    $("#progressTimer").progressTimer({
+        $("#progressTimer").progressTimer({
     	timeLimit: sum,
     	warningThreshold: 10,
     	baseStyle: 'progress-bar-warning',
@@ -94,6 +88,10 @@ function startRecording() {
     	}
     });
     $("#progressTimer").show();
+
+    }, function (e) {
+        console.error('No live audio input: ' + e);
+    });
 }
 
 /**
@@ -143,7 +141,7 @@ sendRecording = function(blob) {
 }
 
 function getAutotune() { 
-	wavesurferAutotuned.load("http://127.0.0.1:5000/score_recording");
+	wavesurferAutotuned.load("/score_recording");
 	$( "#wsAPlay" ).prepend("<button class=\"btn btn-primary wavesurferPlay\" onclick=\"wavesurferAutotuned.playPause()\">Autotune<i class=\"glyphicon glyphicon-play\"></i></button>");
 	$.ajax({
 	  type: "GET",
@@ -244,9 +242,18 @@ function clearAudio() {
 };
 
 function startRecordingOnTimer() { 
-	setTimeout(function() { $("#recordingCue").text( "Recording in 3...") }, 1000);
-	setTimeout(function() { $("#recordingCue").text( "Recording in 2...") }, 2000);
-	setTimeout(function() { $("#recordingCue").text( "Recording in 1...") }, 3000);
+	setTimeout(function() { 
+		$("#recordingCue").text( "Recording in 3...");
+		metronome.play();
+	 }, 1000);
+	setTimeout(function() { 
+		$("#recordingCue").text( "Recording in 2...");
+		metronome.play();
+	 }, 2000);
+	setTimeout(function() { 
+		$("#recordingCue").text( "Recording in 1...");
+		metronome.play()
+	 }, 3000);
 	setTimeout(startRecording, 4000);
 }
 

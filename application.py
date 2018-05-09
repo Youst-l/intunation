@@ -1,6 +1,6 @@
 import numpy as np
 
-from flask import Flask, render_template, request, send_file, make_response
+from flask import Flask, render_template, request, send_file, make_response, send_from_directory
 from werkzeug.datastructures import FileStorage
 from scipy.io import wavfile
 from pitch_autotune import autotune_and_score
@@ -17,13 +17,17 @@ class Intunation(object):
 		self.score = 0 
 		self.current_exercise = None # tuple (freqs, dur) of frequencies and associated durations
 		self.app.add_url_rule('/', view_func=self.render_html)
-		self.app.add_url_rule('/get_exercise', view_func=self.get_exercise, methods=['GET'])
+		self.app.add_url_rule('/favicon.png', view_func=self.favicon, methods=['GET'])
 		self.app.add_url_rule('/save_recording', view_func=self.save_recording, methods=['POST'])
 		self.app.add_url_rule('/score_recording', view_func=self.score_recording, methods=['GET'])
 		self.app.add_url_rule('/score', view_func=self.get_score, methods=['GET'])
+		self.app.add_url_rule('/serve_metronome', view_func=self.serve_metronome, methods=['GET'])
 		
 	def run(self):
 	    self.app.run()
+
+	def favicon(self):
+		return send_from_directory('data/', 'favicon.png')
 
 	def autotune(self, exercise):
 		"""
@@ -47,8 +51,8 @@ class Intunation(object):
 	def render_html(self):
 	    return render_template('index.html')
 
-	def get_exercise(self):
-		pass
+	def serve_metronome(self):
+		return send_from_directory('data/', 'click.wav')
 
 	def save_recording(self):
 		fs, data = wavfile.read(request.files['file'])

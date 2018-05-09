@@ -48,7 +48,7 @@ def autotune_and_score(fs, snd, cues):
     
     score = max(1 - np.average(scores, weights=frame_lens), 0.)
     print "SCORE:", score
-    return pitch_scale(fs, snd, alphas), score/2.
+    return pitch_scale(fs, snd, alphas), score
 
 if __name__ == "__main__":
     fs, snd = wavfile.read('samples/3notes_human.wav')

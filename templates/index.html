@@ -16,6 +16,7 @@
   <!-- Load jQuery and whatever other JS we need -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/wavesurfer.min.js"></script>
   <script type=text/javascript src="{{url_for('static', filename='js/progressTimer.js') }}"></script>
   <script type=text/javascript src="{{url_for('static', filename='js/recorder.js') }}"></script>
@@ -132,6 +133,7 @@
                 
                 </div>
                 <div id="audioDisp" class="col-md-7">
+                  <canvas id="audioChart" width="400" height="400"></canvas>
                 </div>
             </div>
         </div>
