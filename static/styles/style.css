@@ -19,6 +19,10 @@ body {
   font-size:1.25em;
 }
 
+.ctrl-btn { 
+  width: 20%;
+}
+
 .btn-record { 
   background-color: purple;
   border-color: DarkMagenta;

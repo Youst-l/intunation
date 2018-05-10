@@ -94,7 +94,7 @@
           <li class="nav-item"><a><div id="user"></div></a></li>
           <li class="nav-item"><a><div id="score"></div></a></li>
           <li class="nav-item"><a><div id="level"></div></a></li>
-          <li class="nav-item"><a>Mic:</a></li>
+          <li class="nav-item micGauge"><a>Mic:</a></li>
           <li class="nav-item"><a><canvas id="meter" width="500" height="50"></canvas></a></li>
         </ul>
         <div class="nav navbar-text progress" style="width: 30%">
@@ -117,10 +117,12 @@
                   <div id="controls">
                      <div id="exercise"></div>
                      <br>
-                     <button type="button" id="play-btn" class="btn btn-primary">1 <i class="glyphicon glyphicon-play-circle"></i></button>
-                     <button type="button" id="record-btn" class="btn btn-record">2 <i class="glyphicon glyphicon-record"></i></button>
-                     <button type="button" id="autotune-btn" class="btn btn-warning">3 <i class="glyphicon glyphicon-edit"></i></button>
-                     <button type="button" id="ok-btn" class="btn btn-success">4 <i class="glyphicon glyphicon-ok"></i></button>
+                     <div id="control-btns">
+                     <button type="button" id="play-btn" class="btn btn-primary ctrl-btn">1 <i class="glyphicon glyphicon-play-circle"></i></button>
+                     <button type="button" id="record-btn" class="btn btn-record ctrl-btn">2 <i class="glyphicon glyphicon-record"></i></button>
+                     <button type="button" id="autotune-btn" class="btn btn-warning ctrl-btn">3 <i class="glyphicon glyphicon-edit"></i></button>
+                     <button type="button" id="ok-btn" class="btn btn-success ctrl-btn">4 <i class="glyphicon glyphicon-ok"></i></button>
+                    </div>
                   </div>
                   <br>
                   <div id="recordingCue"></div>

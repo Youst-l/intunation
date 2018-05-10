@@ -13,7 +13,7 @@ var wavesurferRecorded;
 var wavesurferAutotuned
 var NUM_LEVELS = 3;
 var metronome = new Audio('/serve_metronome');
-var WIDTH=10;
+var WIDTH=50;
 var HEIGHT=20;
 var rafID = null;
 
@@ -21,7 +21,7 @@ $( document ).ready(function() {
     console.log( "ready!" );
     clearAudio();
     canvasContext = $("#meter")[0].getContext('2d');
-    canvasContext.canvas.width  = 30;
+    canvasContext.canvas.width  = 50;
   	canvasContext.canvas.height = 20;
     $("#instructions").hide();
     $("#progressTimer").hide();
@@ -103,7 +103,7 @@ function stopRecording() {
             var audioUrl = URL.createObjectURL(blob);
             recorded_audio = new Audio(audioUrl);
 			wavesurferRecorded.loadBlob(blob);
-			$( "#wsRPlay" ).prepend("<button class=\"btn btn-primary wavesurferPlay\" onclick=\"wavesurferRecorded.playPause()\">Original<i class=\"glyphicon glyphicon-play\"></i></button>");
+			$( "#wsRPlay" ).prepend("<button class=\"btn btn-primary wavesurferPlay\" onclick=\"wavesurferRecorded.playPause()\"><i class=\"glyphicon glyphicon-edit\"></i><i class=\"glyphicon glyphicon-play\"></i></button>");
             recorded_audio.crossOrigin="anonymous";
             sendRecording(blob);
             recorder.clear();
@@ -133,7 +133,7 @@ sendRecording = function(blob) {
 
 function getAutotune() { 
 	wavesurferAutotuned.load("/score_recording");
-	$( "#wsAPlay" ).prepend("<button class=\"btn btn-primary wavesurferPlay\" onclick=\"wavesurferAutotuned.playPause()\">Autotune<i class=\"glyphicon glyphicon-play\"></i></button>");
+	$( "#wsAPlay" ).prepend("<button class=\"btn btn-primary wavesurferPlay\" onclick=\"wavesurferAutotuned.playPause()\"><i class=\"glyphicon glyphicon-record\"></i><i class=\"glyphicon glyphicon-play\"></i></button>");
 	$.ajax({
 	  type: "GET",
 	  url: "/score",
@@ -220,7 +220,8 @@ function clearAudio() {
 	    progressColor: 'violet',
 	    barHeight: 2, 
 	    barWidth: 2, 
-	    hideScrollbar: true
+	    hideScrollbar: true,
+	    cursorColor: "silver"
 	});
 	wavesurferAutotuned = WaveSurfer.create({
 	    container: '#wavesurferAutotuned',
@@ -228,7 +229,8 @@ function clearAudio() {
 	    progressColor: 'coral', 
 	    barHeight: 2,
 	    barWidth: 2, 
-	    hideScrollbar: true
+	    hideScrollbar: true, 
+	    cursorColor: "silver"
 	});
 };
 
@@ -304,7 +306,7 @@ function drawLoop( time ) {
     if (meter.checkClipping())
         canvasContext.fillStyle = "red";
     else
-        canvasContext.fillStyle = "green";
+        canvasContext.fillStyle = "#5cb85c";
 
     // draw a bar based on the current volume
     canvasContext.fillRect(0, 0, meter.volume*WIDTH*1.4, HEIGHT);
