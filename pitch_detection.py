@@ -93,7 +93,9 @@ def detect_pitches(fs, snd, window_len=2048, thresh=10):
 
     """
     assert(snd.ndim == 1) # Only allow mono recordings
+    
     # Pitch detect in windows
+    snd = clean_audio(snd)
     octave_thresh = 5
     all_pitches = []
     pitches = [(0, 0)]

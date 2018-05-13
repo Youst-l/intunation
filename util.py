@@ -148,10 +148,10 @@ def clean_audio(signal):
     """
     # Remove DC offset
     signal = np.subtract(signal, np.mean(signal))
+
     # Trim the beginning of the signal 
     max_val = np.max(np.abs(signal))
-    print(max_val)
-    thresh = 0.08*max_val
+    thresh = 0.05*max_val
     signal[np.abs(signal)<thresh] = 0
     return signal
 

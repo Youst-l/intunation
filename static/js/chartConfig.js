@@ -2,7 +2,6 @@ var chart;
 Chart.defaults.global.defaultFontFamily = "Nunito";
 
 function drawPitchChart(freqs, times) { 
-  resetCanvas();
   chartData = getInfoForGraph(freqs, times);
   var ctx = document.getElementById('chart').getContext('2d');
   chart = new Chart(ctx, {
@@ -27,7 +26,7 @@ function drawPitchChart(freqs, times) {
                 ticks : { display : false }, 
                 scaleLabel: {
                   display: true,
-                  labelString: 'pitch'
+                  labelString: 'pitch (hz)'
                 }
             }], 
             xAxes: [{

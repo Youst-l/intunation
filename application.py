@@ -1,8 +1,8 @@
 import numpy as np
 
+from scipy.io import wavfile
 from flask import Flask, render_template, request, send_file, make_response, send_from_directory, jsonify
 from werkzeug.datastructures import FileStorage
-from scipy.io import wavfile
 from pitch_autotune import autotune_and_score
 
 class Intunation(object):
@@ -22,6 +22,8 @@ class Intunation(object):
 		self.app.add_url_rule('/score', view_func=self.get_score, methods=['GET'])
 		self.app.add_url_rule('/get_pitches', view_func=self.get_pitches, methods=['GET'])
 		self.app.add_url_rule('/serve_metronome', view_func=self.serve_metronome, methods=['GET'])
+		self.app.add_url_rule('/serve_level_complete', view_func=self.serve_level_complete, methods=['GET'])
+		self.app.add_url_rule('/serve_exercise_complete', view_func=self.serve_exercise_complete, methods=['GET'])
 		
 	def run(self):
 	    self.app.run()
@@ -54,6 +56,12 @@ class Intunation(object):
 	def serve_metronome(self):
 		return send_from_directory('data/', 'click.wav')
 
+	def serve_level_complete(self):
+		return send_from_directory('data/', 'level_complete.wav')
+
+	def serve_exercise_complete(self):
+		return send_from_directory('data/', 'exercise_complete.wav')
+
 	def save_recording(self):
 		fs, data = wavfile.read(request.files['file'])
 		freq_string = request.form['freqs'].encode('utf-8')[1:-1].split(",")
@@ -67,10 +75,12 @@ class Intunation(object):
 		return make_response("%0.2f" % (self.score))
 
 	def get_pitches(self):
-		points = []
+		points = [{'x' : 0, 'y' : self.current_pitch_detection[0][1] }] 
 		for time, freq in self.current_pitch_detection:
 			points.append({ 'x' : time, 'y' : freq })
-		print self.current_pitch_detection
+		print self.current_exercise
+		points.append({'x' : sum(self.current_exercise[1]), 'y':points[-1]['y']})
+		print points
 		return make_response(jsonify(points))
 		
 	def score_recording(self):

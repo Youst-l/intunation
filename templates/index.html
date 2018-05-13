@@ -24,6 +24,7 @@
   <!-- Load local JS files-->
   <script type=text/javascript src="{{url_for('static', filename='js/volume-meter.js') }}"></script>
   <script type=text/javascript src="{{url_for('static', filename='js/progressTimer.js') }}"></script>
+  <script type=text/javascript src="{{url_for('static', filename='js/gauge.min.js') }}"></script>
   <script type=text/javascript src="{{url_for('static', filename='js/chartConfig.js') }}"></script>
   <script type=text/javascript src="{{url_for('static', filename='js/recorder.js') }}"></script>
   <script type=text/javascript src="{{url_for('static', filename='js/exercises.js') }}"></script>
@@ -41,7 +42,7 @@
         </div>
         <div class="modal-body">
           <div id="select-menu" class="input-group form-group">
-              Username: <input type="text" class="form-control" id="userName" placeholder="Eran Egozy"><br>
+              Username: <input type="text" class="form-control" id="userName" placeholder="Eran Egozy" maxlength="10"><br>
               Pick your poison:
               <select id="level-select" class="form-control"></select>
           </div>
@@ -62,14 +63,15 @@
     </div>
   </div>
 
-    <!-- SIGN IN MODAL -->
+    <!-- LEVEL COMPLETE MODAL -->
   <div class="modal" id="complete-level" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h2 class="modal-title">You completed a level!</strong></h2>
+          <h2 class="modal-title">Level complete!</strong></h2>
         </div>
         <div class="modal-body">
+          <div> Great job. You just completed a level, and are on your way to becoming an ear training master!</div>
           <button type="button" id="complete-level-btn" class="btn btn-success">Continue</button>
         </div>
         <div class="modal-footer">
@@ -92,11 +94,10 @@
           <li class="nav-item"><a><div id="user"></div></a></li>
           <li class="nav-item"><a><div id="score"></div></a></li>
           <li class="nav-item"><a><div id="level"></div></a></li>
-          <li class="nav-item micGauge"><a>Mic:</a></li>
-          <li class="nav-item"><a><canvas id="meter" width="500" height="50"></canvas></a></li>
+          <li class="nav-item"><a><canvas id="meter" width="800" height="100"></canvas></a></li>
         </ul>
         <div class="nav navbar-text progress" style="width: 30%">
-                  <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar"
+                  <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar"
                   aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" id="progress"></div>
         </div>
       </div><!-- /.navbar-collapse -->

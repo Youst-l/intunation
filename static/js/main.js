@@ -3,6 +3,7 @@ var audio_context;
 var canvasContext;
 var analyzer;
 var meter;
+var gauge;
 var current_level;
 var current_exercise_num;
 var recorded_audio;
@@ -11,8 +12,10 @@ var username;
 var level;
 var wavesurferRecorded;
 var wavesurferAutotuned
-var NUM_LEVELS = 3;
+var NUM_LEVELS = 4;
 var metronome = new Audio('/serve_metronome');
+var level_complete_snd = new Audio('/serve_level_complete');
+var exercise_complete_snd = new Audio('/serve_exercise_complete');
 var rafID = null;
 
 $( document ).ready(function() {
@@ -43,13 +46,37 @@ $( document ).ready(function() {
 	$( "#play-btn" ).click(function() { playExercise(); });
 	$( "#signin-btn" ).click( function() { signIn(); });
 	$( "#complete-level-btn" ).click(function() { 
-		var cur_level_num = current_level[0].level
+		var cur_level_num = current_level[0].level;
 		completeLevel(cur_level_num);
+		$('#progress').text("");
 		$('#complete-level').modal('hide');
 	});
 	$( ".wavesurferPlay" ).click(function() { 
 		$(this).find('i').toggleClass('glyphicon glyphicon-arrow-pause').toggleClass('glyphicon glyphicon-arrow-play');
 	});
+	var opts = {
+	  angle: 0.15, // The span of the gauge arc
+	  lineWidth: 0.44, // The line thickness
+	  radiusScale: 1, // Relative radius
+	  pointer: {
+	    length: 0.6, // // Relative to gauge radius
+	    strokeWidth: 0.035, // The thickness
+	    color: '#000000' // Fill color
+	  },
+	  limitMax: false,     // If false, max value increases automatically if value > maxValue
+	  limitMin: false,     // If true, the min value of the gauge will be fixed
+	  colorStart: '#6FADCF',   // Colors
+	  colorStop: '#8FC0DA',    // just experiment with them
+	  strokeColor: '#E0E0E0',  // to see which ones work best for you
+	  generateGradient: true,
+	  highDpiSupport: true,     // High resolution support
+	  
+	};
+	gauge = new Gauge($("#meter")[0]).setOptions(opts);
+	gauge.maxValue = 100; // set max gauge value
+	gauge.setMinValue(0);  // Prefer setter over gauge.minValue = 0
+	gauge.animationSpeed = 32; // set animation speed (32 is default value)
+	gauge.set(50); // set actual value
 	$('#signin').modal('show');
 });
 
@@ -67,8 +94,6 @@ function startRecording() {
 	$("#record-btn").removeClass("btn btn-record").addClass("btn btn-danger"); 
 	$("#recordingCue").empty();
 	var sum = current_level[current_exercise_num].times.reduce(function (accumulator, currentValue) { return accumulator + currentValue; }, 0);
-    recorder && recorder.record();
-    console.log('Recording...');
     $("#progressTimer").progressTimer({
     	timeLimit: sum,
     	warningThreshold: 10,
@@ -80,6 +105,8 @@ function startRecording() {
     		setTimeout(function() { $("#progressTimer").hide(); }, 1000);
     	}
     });
+    recorder && recorder.record();
+    console.log('Recording...');
     $("#progressTimer").show();
 }
 
@@ -131,6 +158,7 @@ sendRecording = function(blob) {
 
 function getAutotune() { 
 	wavesurferAutotuned.load("/score_recording");
+	autotuned_audio = true;
 	$( "#wsAPlay" ).prepend("<button class=\"btn btn-primary wavesurferPlay\" id=\"wsAPlayBtn\" onclick=\"wavesurferAutotuned.playPause()\"><i id=\"tmpLoad\" class=\"fa fa-circle-o-notch fa-spin\"></i></button>");
 	wavesurferAutotuned.on('ready', function () {
 	    $("#wsAPlayBtn").append("<i class=\"glyphicon glyphicon-play\"></i>");
@@ -200,8 +228,12 @@ function loadExercises(level) {
 
 function completeExercise() { 
 	// Update progress bar
-	$("#progress").css("width", String(100*(current_exercise_num + 1)/current_level.length) + "%");
 	current_exercise_num += 1;
+	var width =String(100*(current_exercise_num)/current_level.length);
+	$("#progress").css("width",  width+"%");
+	$("#progress").text(Math.floor(width) + "% complete");
+	exercise_complete_snd.play();
+	resetCanvas();
 	if (current_exercise_num == current_level.length) {
 	    setTimeout(
 	        function(){
@@ -209,7 +241,6 @@ function completeExercise() {
 	    }, 1000); 
 	} else { 
 		clearAudio();
-		// Load new prompt
 		var exercise = current_level[current_exercise_num];
 		$( "#exercise" ).text( exercise.text )
 	}
@@ -218,6 +249,7 @@ function completeExercise() {
 function completeLevel(level) {
 	// Reset buttons
 	clearAudio()
+	level_complete_snd.play();
 	$("#progress").css("width", "0%");
 	// Clear out saved audio
 	if (level==NUM_LEVELS) { 
@@ -323,24 +355,10 @@ function initializeAudio() {
 }
 
 
-
 function drawLoop( time ) {
-    // clear the background
-    canvasContext.clearRect(0,0,canvasContext.canvas.width,canvasContext.canvas.height);
-
-    // check if we're currently clipping
-    if (meter.checkClipping())
-        canvasContext.fillStyle = "red";
-    else
-        canvasContext.fillStyle = "#5cb85c";
-
-    // draw a bar based on the current volume
-    canvasContext.fillRect(0, 0, meter.volume*canvasContext.canvas.width *1.4, canvasContext.canvas.height);
-
-    // set up the next visual callback
+	gauge.set(meter.volume*140);
     rafID = window.requestAnimationFrame( drawLoop );
 }
-
 
 
 
