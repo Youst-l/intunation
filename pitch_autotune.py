@@ -4,13 +4,22 @@ from scipy.io import wavfile
 from pitch_detection import detect_pitches
 from pitch_scaling import pitch_scale
 
+def normalize_alpha(alpha):
+    if alpha <= 0:
+        return 0
+    while alpha > 2 ** 0.5:
+        alpha /= 2
+    while alpha < 2 ** -0.5:
+        alpha *= 2
+    return alpha
+
 def autotune_and_score(fs, snd, cues):
     print "CUES:", cues
     all_pitches, pitches = detect_pitches(fs, snd)
     print "PITCHES:", pitches
     pitch_idx = 0
     cue_idx = 0
-    alphas = [(0, cues[cue_idx][1]/pitches[pitch_idx][1])]
+    alphas = [(0, normalize_alpha(cues[cue_idx][1]/pitches[pitch_idx][1]))]
     while True:
         if pitch_idx+1 < len(pitches):
             if cue_idx+1 < len(cues):
@@ -26,11 +35,7 @@ def autotune_and_score(fs, snd, cues):
             else:
                 break
         t = max(pitches[pitch_idx][0], cues[cue_idx][0])
-        alpha = cues[cue_idx][1]/pitches[pitch_idx][1]
-        while alpha > 2 ** 0.5:
-           alpha /= 2
-        while alpha < 2 ** -0.5:
-           alpha *= 2
+        alpha = normalize_alpha(cues[cue_idx][1]/pitches[pitch_idx][1])
         alphas += [(t, alpha)]
     print "ALPHAS:", alphas
 
