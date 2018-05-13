@@ -6,7 +6,7 @@ from pitch_scaling import pitch_scale
 
 def autotune_and_score(fs, snd, cues):
     print "CUES:", cues
-    pitches = detect_pitches(fs, snd)[0]
+    all_pitches, pitches = detect_pitches(fs, snd)
     print "PITCHES:", pitches
     pitch_idx = 0
     cue_idx = 0
@@ -27,10 +27,10 @@ def autotune_and_score(fs, snd, cues):
                 break
         t = max(pitches[pitch_idx][0], cues[cue_idx][0])
         alpha = cues[cue_idx][1]/pitches[pitch_idx][1]
-        #while alpha > 2 ** 0.5:
-        #    alpha /= 2
-        #while alpha < 2 ** -0.5:
-        #    alpha *= 2
+        while alpha > 2 ** 0.5:
+           alpha /= 2
+        while alpha < 2 ** -0.5:
+           alpha *= 2
         alphas += [(t, alpha)]
     print "ALPHAS:", alphas
 
@@ -48,10 +48,8 @@ def autotune_and_score(fs, snd, cues):
     
     score = max(1 - np.average(scores, weights=frame_lens), 0.)
     print "SCORE:", score
-    return pitch_scale(fs, snd, alphas)[:len(snd)], score
-
+    return pitch_scale(fs, snd, alphas)[:len(snd)], score, all_pitches
 if __name__ == "__main__":
     fs, snd = wavfile.read('samples/3notes_human.wav')
     autotuned_signal, score = autotune_and_score(fs, snd, [(0, 440)])
     print score
-    #play_signal(autotuned_signal)

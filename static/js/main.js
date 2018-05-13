@@ -13,8 +13,6 @@ var wavesurferRecorded;
 var wavesurferAutotuned
 var NUM_LEVELS = 3;
 var metronome = new Audio('/serve_metronome');
-var WIDTH=50;
-var HEIGHT=20;
 var rafID = null;
 
 $( document ).ready(function() {
@@ -103,7 +101,7 @@ function stopRecording() {
             var audioUrl = URL.createObjectURL(blob);
             recorded_audio = new Audio(audioUrl);
 			wavesurferRecorded.loadBlob(blob);
-			$( "#wsRPlay" ).prepend("<button class=\"btn btn-primary wavesurferPlay\" onclick=\"wavesurferRecorded.playPause()\"><i class=\"glyphicon glyphicon-edit\"></i><i class=\"glyphicon glyphicon-play\"></i></button>");
+			$( "#wsRPlay" ).prepend("<button class=\"btn btn-primary wavesurferPlay\" onclick=\"wavesurferRecorded.playPause()\"><i class=\"glyphicon glyphicon-record\"></i><i class=\"glyphicon glyphicon-play\"></i></button>");
             recorded_audio.crossOrigin="anonymous";
             sendRecording(blob);
             recorder.clear();
@@ -133,7 +131,11 @@ sendRecording = function(blob) {
 
 function getAutotune() { 
 	wavesurferAutotuned.load("/score_recording");
-	$( "#wsAPlay" ).prepend("<button class=\"btn btn-primary wavesurferPlay\" onclick=\"wavesurferAutotuned.playPause()\"><i class=\"glyphicon glyphicon-record\"></i><i class=\"glyphicon glyphicon-play\"></i></button>");
+	$( "#wsAPlay" ).prepend("<button class=\"btn btn-primary wavesurferPlay\" id=\"wsAPlayBtn\" onclick=\"wavesurferAutotuned.playPause()\"><i id=\"tmpLoad\" class=\"fa fa-circle-o-notch fa-spin\"></i></button>");
+	wavesurferAutotuned.on('ready', function () {
+	    $("#wsAPlayBtn").append("<i class=\"glyphicon glyphicon-play\"></i>");
+	    $("#tmpLoad").attr('class', 'glyphicon glyphicon-edit');
+	});
 	$.ajax({
 	  type: "GET",
 	  url: "/score",
@@ -141,28 +143,52 @@ function getAutotune() {
 	}).done(function(data) {
 		$( "#score" ).text( "Score: " + data );
 	});
+	$.ajax({
+	  type: "GET",
+	  url: "/get_pitches",
+	  data: "",
+	}).done(function(data) {
+		autotuneConfig = {
+            label: "your voice",
+            borderColor: 'rgb(102, 0, 102)',
+            fill: false,
+            data: data,
+            steppedLine: true
+        };
+		chart.data.datasets.push(autotuneConfig);
+		chart.update();
+	});
 }
 
 function playExercise() { 
 	var times = current_level[current_exercise_num].times;
 	var freqs = current_level[current_exercise_num].freqs;
+	drawPitchChart(freqs, times);
 	var oscillator = audio_context.createOscillator();
 	oscillator.type = 'sine';
 	var total_duration = 0
     oscillator.connect(analyzer);
+    setTimeout(function() { 
+		metronome.play();
+	 }, 1000);
+	setTimeout(function() { 
+		metronome.play();
+	 }, 2000);
+	setTimeout(function() { 
+		metronome.play()
+	 }, 3000);
     for (i=0; i<freqs.length; i++) { 
-    	oscillator.frequency.setValueAtTime(freqs[i], audio_context.currentTime + total_duration);
+    	oscillator.frequency.setValueAtTime(freqs[i], audio_context.currentTime + total_duration + 4.3);
     	total_duration += times[i];
     };
-    oscillator.start();
+    setTimeout(function() { oscillator.start(); }, 4300);
     setTimeout(
         function(){
             oscillator.stop();
             oscillator.disconnect(analyzer);
             $('#record-btn').prop('disabled', false);
-    }, total_duration*1000);
+    }, 4300 + total_duration*1000);
 }
-
 
 function loadExercises(level) { 
 	current_level = EXERCISES[level-1]; // Load exercises
@@ -300,7 +326,7 @@ function initializeAudio() {
 
 function drawLoop( time ) {
     // clear the background
-    canvasContext.clearRect(0,0,WIDTH,HEIGHT);
+    canvasContext.clearRect(0,0,canvasContext.canvas.width,canvasContext.canvas.height);
 
     // check if we're currently clipping
     if (meter.checkClipping())
@@ -309,7 +335,7 @@ function drawLoop( time ) {
         canvasContext.fillStyle = "#5cb85c";
 
     // draw a bar based on the current volume
-    canvasContext.fillRect(0, 0, meter.volume*WIDTH*1.4, HEIGHT);
+    canvasContext.fillRect(0, 0, meter.volume*canvasContext.canvas.width *1.4, canvasContext.canvas.height);
 
     // set up the next visual callback
     rafID = window.requestAnimationFrame( drawLoop );

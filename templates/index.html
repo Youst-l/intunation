@@ -11,28 +11,26 @@
 
   <!-- Load style sheets -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/style.css') }}">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.0/chartist.min.css">
+  <link rel="stylesheet" href="{{url_for('static', filename='styles/style.css') }}"></script>
 
-  <!-- Load jQuery and whatever other JS we need -->
+  <!-- Load jQuery & other minified dependencies-->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.5/wavesurfer.min.js"></script>
+
+  <!-- Load local JS files-->
   <script type=text/javascript src="{{url_for('static', filename='js/volume-meter.js') }}"></script>
   <script type=text/javascript src="{{url_for('static', filename='js/progressTimer.js') }}"></script>
+  <script type=text/javascript src="{{url_for('static', filename='js/chartConfig.js') }}"></script>
   <script type=text/javascript src="{{url_for('static', filename='js/recorder.js') }}"></script>
   <script type=text/javascript src="{{url_for('static', filename='js/exercises.js') }}"></script>
   <script type=text/javascript src="{{url_for('static', filename='js/main.js') }}"></script>
-
-
 </head>
 
 <body>
-
-  <!-- HEADER -->
-<!--   <header>
-    <h1>intunation.</h1>
-  </header> -->
 
   <!-- SIGN IN MODAL -->
   <div class="modal" id="signin" tabindex="-1" role="dialog">
@@ -138,16 +136,10 @@
                 
                 </div>
                 <div id="audioDisp" class="col-md-7">
-                  
+                  <canvas id="chart"></canvas>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="row"> 
-      <div id="audio-el">
-        <audio id="playback"></audio>
-        <audio id="autotune"></audio>
-      </div>
     </div>
 </div>
 

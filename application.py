@@ -1,6 +1,6 @@
 import numpy as np
 
-from flask import Flask, render_template, request, send_file, make_response, send_from_directory
+from flask import Flask, render_template, request, send_file, make_response, send_from_directory, jsonify
 from werkzeug.datastructures import FileStorage
 from scipy.io import wavfile
 from pitch_autotune import autotune_and_score
@@ -13,7 +13,6 @@ class Intunation(object):
 		self.current_recording = np.array([])
 		self.current_fs = None
 		self.current_pitch_detection = None
-		self.current_autotune = None
 		self.score = 0 
 		self.current_exercise = None # tuple (freqs, dur) of frequencies and associated durations
 		self.app.add_url_rule('/', view_func=self.render_html)
@@ -21,6 +20,7 @@ class Intunation(object):
 		self.app.add_url_rule('/save_recording', view_func=self.save_recording, methods=['POST'])
 		self.app.add_url_rule('/score_recording', view_func=self.score_recording, methods=['GET'])
 		self.app.add_url_rule('/score', view_func=self.get_score, methods=['GET'])
+		self.app.add_url_rule('/get_pitches', view_func=self.get_pitches, methods=['GET'])
 		self.app.add_url_rule('/serve_metronome', view_func=self.serve_metronome, methods=['GET'])
 		
 	def run(self):
@@ -44,9 +44,9 @@ class Intunation(object):
 			exercise_cues += [exercise_cue]
 
 		fs, snd = self.current_fs, self.current_recording
-		autotuned, score = autotune_and_score(fs, snd, exercise_cues)
+		autotuned, score, pitches = autotune_and_score(fs, snd, exercise_cues)
 		autotuned = np.array(autotuned, dtype=np.int16)
-		return score, fs, autotuned
+		return score, fs, autotuned, pitches
 
 	def render_html(self):
 	    return render_template('index.html')
@@ -65,10 +65,18 @@ class Intunation(object):
 
 	def get_score(self):
 		return make_response("%0.2f" % (self.score))
+
+	def get_pitches(self):
+		points = []
+		for time, freq in self.current_pitch_detection:
+			points.append({ 'x' : time, 'y' : freq })
+		print self.current_pitch_detection
+		return make_response(jsonify(points))
 		
 	def score_recording(self):
 		if self.current_recording.size != 0 and self.current_fs:
-			score, fs, snd = self.autotune(self.current_exercise) # TODO: should pass in cues after implementing autotune
+			score, fs, snd, pitches = self.autotune(self.current_exercise) 
+			self.current_pitch_detection = pitches
 			self.score += score
 			wavfile.write('autotune.wav', fs, snd)
 			r = send_file('autotune.wav', mimetype='audio/wav', as_attachment=True, attachment_filename='autotune.wav')
