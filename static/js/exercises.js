@@ -89,8 +89,8 @@ var HotCrossBuns = {
 };
 
 var BeethovensFifth = {
-    times: [.6,.6,.6,2.],
-    freqs: [392.,392.,392.,311.],
+    times: [.6,.1,.6,.1,.6,.1,2.],
+    freqs: [392.,0.,392.,0.,392.,0.,311.],
     level: 3,
     text: "Please sing the first four notes of Beethoven's fifth."
 };
