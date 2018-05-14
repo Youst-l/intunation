@@ -191,7 +191,7 @@ function getAutotune() {
 function playExercise() { 
 	var times = current_level[current_exercise_num].times;
 	var freqs = current_level[current_exercise_num].freqs;
-	drawPitchChart(freqs, times);
+	if (!autotuned_audio) { drawPitchChart(freqs, times); }
 	var oscillator = audio_context.createOscillator();
 	oscillator.type = 'sine';
 	var total_duration = 0
