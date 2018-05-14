@@ -1,7 +1,7 @@
 from util import *
 from scipy.io import wavfile
 
-def time_stretch_sola(fs, signal, alpha, window_len = 8192, taper_len = 2048, candid_len = 1024):
+def time_stretch_sola(fs, signal, alpha, window_len = 8192, taper_len = 4096, candid_len = 1024):
     """
     Performs time stretching on an audio signal. Uses the
     synchronized overlap-add method (SOLA).
@@ -57,7 +57,7 @@ def scale_pitch_one_alpha(fs, snd, alpha):
     resampled_signal = resample(fs, time_stretched_signal, alpha)
     return resampled_signal
 
-def scale_pitch_many_alphas(fs, snd, alphas, taper_len = 2048):
+def scale_pitch_many_alphas(fs, snd, alphas, taper_len = 4096):
     signals = []
     for i, (t, alpha) in enumerate(alphas):
         frame = int(t * fs)
