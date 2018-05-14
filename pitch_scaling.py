@@ -59,9 +59,14 @@ def scale_pitch_one_alpha(fs, snd, alpha):
 
 def scale_pitch_many_alphas(fs, snd, alphas, taper_len = 2048):
     signals = []
-    for (t, alpha) in alphas:
+    for i, (t, alpha) in enumerate(alphas):
         frame = int(t * fs)
-        signal = scale_pitch_one_alpha(fs, snd[frame:], alpha)
+        next_frame = 0
+        if i+1 == len(alphas):
+            next_frame = len(snd) + 2*taper_len
+        else:
+            next_frame = int(alphas[i+1][0] * fs) + 2*taper_len
+        signal = scale_pitch_one_alpha(fs, snd[frame:next_frame], alpha)
         signals += [(frame, signal)]
     return overlap_add(signals, taper_len)
 
