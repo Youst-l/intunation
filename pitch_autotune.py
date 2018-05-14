@@ -24,8 +24,8 @@ def autotune_and_score(fs, snd, cues):
         if i == 0:
             new_cues += [cue]
             continue
-        min_t = cue[0] - 0.15
-        max_t = cue[0] + 0.15
+        min_t = cue[0] - 0.05
+        max_t = cue[0] + 0.30
         max_diff = 0
         best_t = cue[0]
         for i in range(len(pitches)):
