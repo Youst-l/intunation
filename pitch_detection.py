@@ -1,7 +1,6 @@
 from util import *
 from scipy.io import wavfile
 from scipy.signal import fftconvolve, butter, lfilter
-import matplotlib.pyplot as plt
 
 def detect_pitch_parabolic(signal, fs):
     """
@@ -113,57 +112,3 @@ def detect_pitches(fs, snd, window_len=2048, thresh=10):
             if np.abs(pitch - last_pitch) >= thresh:
                 pitches.append((float(i)/float(fs), pitch))
     return pitches[1:], all_pitches # get rid of dummy pitch at beginning
-
-
-
-if __name__ == "__main__":
-    p, all_pitch = detect_pitches('samples/440_human.wav')
-    plt.scatter(*zip(*all_pitch))
-    plt.ylim((0, 1000))
-    plt.xlabel("Time in audio (sec)")
-    plt.ylabel("Pitch detected (Hz)")
-    plt.show()
-
-
-# CODE BELOW IS NOT FUNCTIONAL BUT IS ME (INEFFICIENTLY) IMPLEMENTING YIN
-
-# def yin_pitch_detection(signal, fs):
-#     # PARAMETERS 
-#     sample_rate = float(fs)
-#     freq_min, freq_max = 40, 4000 # frequency range of human voice in Hz 
-#     win_len = 4096
-#     hop_size = win_len / 4
-#     max_thresh = 0.1
-#     eps = 0.0000001
-
-#     # Get spectrogram (magnitude STFT) from audio signal and the constituent freqs
-#     signal -= np.mean(signal)  # Remove DC offset
-#     spec = stft_mag(signal, win_len, hop_size)
-#     k = np.arange(len(signal))
-#     T = len(signal)/fs
-#     frqLabel = k/T
-
-#     # Step 2: Get differences of autocorrelation
-#     tau_max = 3000
-#     win_size = 6000
-#     r = np.zeros(tau_max)
-#     for tau in range(tau_max):
-#         s = 0.
-#         for j in range(win_len):
-#             s += (signal[j] - signal[j+tau])**2
-#         r[tau] = s
-
-#     # Step 3: Cumulative mean normalized difference function
-#     d = np.zeros(tau_max)
-#     s = r[0]
-#     d[0] = 1
-#     for tau in range(1,tau_max):
-#         s += r[tau]
-#         d[tau] = r[tau] / ((1 / tau) * s) 
-
-#     for i in range(tau_max):
-#         if d[i] > 0.5:
-#             continue
-#         if d[i-1] > d[i] < d[i+1]:
-#             print(44100/i)
-#             break
