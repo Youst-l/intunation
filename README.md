@@ -15,10 +15,6 @@ Ear training game using autotune
 * Note that there are some caching issues with the GET request to get autotune data so I recommend working in incognito mode or hard refreshing pages; we can try to find an actual non-jank solution
 
 ## TODO
-* Loading function while autotune is being called
-* Making progress bar actually match the timing of recorder
-* Getting rid of jankness when making the autotune API call
-* Visualizations for real time audio stuff
-* Making labels for playback simpler
-* Level complete message + Audio feedback
-* Game complete message
+* Deploy application
+* Get rid of spikes in pitch detection due to silence in audio
+* Sine tone issues

@@ -78,9 +78,7 @@ class Intunation(object):
 		points = [{'x' : 0, 'y' : self.current_pitch_detection[0][1] }] 
 		for time, freq in self.current_pitch_detection:
 			points.append({ 'x' : time, 'y' : freq })
-		print self.current_exercise
 		points.append({'x' : sum(self.current_exercise[1]), 'y':points[-1]['y']})
-		print points
 		return make_response(jsonify(points))
 		
 	def score_recording(self):
