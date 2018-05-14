@@ -19,6 +19,30 @@ def autotune_and_score(fs, snd, cues):
     print "PITCHES:", pitches
     pitch_idx = 0
     cue_idx = 0
+    new_cues = []
+    for i, cue in enumerate(cues):
+        if i == 0:
+            new_cues += [cue]
+            continue
+        min_t = cue[0] - 0.15
+        max_t = cue[0] + 0.15
+        max_diff = 0
+        best_t = cue[0]
+        for i in range(len(pitches)):
+            if i == 0:
+                continue
+            t = pitches[i][0]
+            if t < min_t or t > max_t:
+                continue
+            diff = pitches[i][1] / pitches[i-1][1]
+            if diff < 1:
+                diff = 1./diff
+            if diff > max_diff:
+                max_diff = diff
+                best_t = t
+        new_cues += [(best_t, cue[1])]
+    cues = new_cues
+    print "ADJUSTED CUES:", cues
     alphas = [(0, normalize_alpha(cues[cue_idx][1]/pitches[pitch_idx][1]))]
     while True:
         if pitch_idx+1 < len(pitches):
