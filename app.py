@@ -95,6 +95,5 @@ class Intunation(object):
 			return r
 		return 'BAD'
 		
-Intunation().run()
-
-
+if __name__ == '__main__':
+    Intunation().run()
