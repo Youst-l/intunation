@@ -13,9 +13,9 @@ var level;
 var wavesurferRecorded;
 var wavesurferAutotuned
 var NUM_LEVELS = 4;
-var metronome = new Audio('/serve_metronome');
-var level_complete_snd = new Audio('/serve_level_complete');
-var exercise_complete_snd = new Audio('/serve_exercise_complete');
+var metronome;
+var level_complete_snd;
+var exercise_complete_snd;
 var rafID = null;
 
 $( document ).ready(function() {
@@ -315,6 +315,9 @@ function signIn() {
 		username = $( "#userName" ).val();
 		var level = $("#level-select").find("option:selected").text();
 		if (username != "") { 
+			metronome = new Audio('/serve_metronome');
+			level_complete_snd = new Audio('/serve_level_complete');
+			exercise_complete_snd = new Audio('/serve_exercise_complete');
 			audio_context = new AudioContext();
 			analyzer = audio_context.createAnalyser();
 			analyzer.connect(audio_context.destination);
