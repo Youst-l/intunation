@@ -14,9 +14,9 @@ def normalize_alpha(alpha):
     return alpha
 
 def autotune_and_score(fs, snd, cues):
-    print "CUES:", cues
+    #print "CUES:", cues
     all_pitches, pitches = detect_pitches(fs, snd)
-    print "PITCHES:", pitches
+    #print "PITCHES:", pitches
     pitch_idx = 0
     cue_idx = 0
     new_cues = []
@@ -42,7 +42,7 @@ def autotune_and_score(fs, snd, cues):
                 best_t = t
         new_cues += [(best_t, cue[1])]
     cues = new_cues
-    print "ADJUSTED CUES:", cues
+    #print "ADJUSTED CUES:", cues
     alphas = [(0, normalize_alpha(cues[cue_idx][1]/pitches[pitch_idx][1]))]
     while True:
         if pitch_idx+1 < len(pitches):
@@ -61,7 +61,7 @@ def autotune_and_score(fs, snd, cues):
         t = max(pitches[pitch_idx][0], cues[cue_idx][0])
         alpha = normalize_alpha(cues[cue_idx][1]/pitches[pitch_idx][1])
         alphas += [(t, alpha)]
-    print "ALPHAS:", alphas
+    #print "ALPHAS:", alphas
 
     scores = []
     frame_lens = []

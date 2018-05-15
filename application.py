@@ -29,7 +29,6 @@ class Intunation(object):
 		These cues should be formatted in the following way: a list of tuples [ (a1, b2), (a2, b2), ...]
 		where (a1, b2) is a (timestamp (in seconds), note (in frequency)) pair.
 		"""
-		print "EXERCISE:", exercise
 		exercise_cues = []
 		t = 0
 		for i in range(len(exercise[0])):
@@ -76,7 +75,9 @@ class Intunation(object):
 	def score_recording(self):
 		if self.current_recording.size != 0 and self.current_fs:
 			score, fs, snd, pitches = self.autotune(self.current_exercise) 
+			print "SCORING RECORDING..."
 			self.current_pitch_detection = pitches
+			print pitches
 			self.score += score
 			wavfile.write('autotune.wav', fs, snd)
 			r = send_file('autotune.wav', mimetype='audio/wav', as_attachment=True, attachment_filename='autotune.wav')

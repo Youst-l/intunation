@@ -163,28 +163,28 @@ function getAutotune() {
 	wavesurferAutotuned.on('ready', function () {
 	    $("#wsAPlayBtn").append("<i class=\"glyphicon glyphicon-play\"></i>");
 	    $("#tmpLoad").attr('class', 'glyphicon glyphicon-edit');
-	});
-	$.ajax({
-	  type: "GET",
-	  url: "/score",
-	  data: "",
-	}).done(function(data) {
-		$( "#score" ).text( "Score: " + data );
-	});
-	$.ajax({
-	  type: "GET",
-	  url: "/get_pitches",
-	  data: "",
-	}).done(function(data) {
-		autotuneConfig = {
-            label: "your voice",
-            borderColor: 'rgb(102, 0, 102)',
-            fill: false,
-            data: data,
-            steppedLine: true
-        };
-		chart.data.datasets.push(autotuneConfig);
-		chart.update();
+	    $.ajax({
+		  type: "GET",
+		  url: "/score",
+		  data: "",
+		}).done(function(data) {
+			$( "#score" ).text( "Score: " + data );
+		});
+		$.ajax({
+		  type: "GET",
+		  url: "/get_pitches",
+		  data: "",
+		}).done(function(data) {
+			autotuneConfig = {
+	            label: "your voice",
+	            borderColor: 'rgb(102, 0, 102)',
+	            fill: false,
+	            data: data,
+	            steppedLine: true
+	        };
+			chart.data.datasets.push(autotuneConfig);
+			chart.update();
+		});
 	});
 }
 
