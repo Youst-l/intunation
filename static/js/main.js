@@ -88,7 +88,6 @@ $( document ).ready(function() {
  */
 function startRecording() {
 	clearAudio();
-	$('#record-btn').prop('disabled', false);
 	console.log("STARTING")
 	RECORDING = true;
 	$("#record-btn").removeClass("btn btn-record").addClass("btn btn-danger"); 
@@ -293,6 +292,7 @@ function clearAudio() {
 };
 
 function startRecordingOnTimer() { 
+	$('#record-btn').prop('disabled', false);
 	setTimeout(function() { 
 		$("#recordingCue").text( "Recording in 3...");
 		metronome.play();
