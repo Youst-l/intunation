@@ -6,19 +6,27 @@ from werkzeug.datastructures import FileStorage
 from pitch_autotune import autotune_and_score
 
 class Intunation(object):
+	app = None
 
 	def __init__(self):
+		self.app = Flask(__name__)
 		self.current_recording = np.array([])
 		self.current_fs = None
 		self.current_pitch_detection = None
 		self.score = 0 
 		self.current_exercise = None # tuple (freqs, dur) of frequencies and associated durations
+		self.app.add_url_rule('/', view_func=self.render_html)
+		self.app.add_url_rule('/favicon.png', view_func=self.favicon, methods=['GET'])
+		self.app.add_url_rule('/save_recording', view_func=self.save_recording, methods=['POST'])
+		self.app.add_url_rule('/score_recording', view_func=self.score_recording, methods=['GET'])
+		self.app.add_url_rule('/score', view_func=self.get_score, methods=['GET'])
+		self.app.add_url_rule('/get_pitches', view_func=self.get_pitches, methods=['GET'])
+		self.app.add_url_rule('/serve_metronome', view_func=self.serve_metronome, methods=['GET'])
+		self.app.add_url_rule('/serve_level_complete', view_func=self.serve_level_complete, methods=['GET'])
+		self.app.add_url_rule('/serve_exercise_complete', view_func=self.serve_exercise_complete, methods=['GET'])
 		
 	def run(self):
 	    self.app.run()
-
-	def get_app(self):
-		return self.app
 
 	def favicon(self):
 		return send_from_directory('data/', 'favicon.png')
@@ -29,6 +37,7 @@ class Intunation(object):
 		These cues should be formatted in the following way: a list of tuples [ (a1, b2), (a2, b2), ...]
 		where (a1, b2) is a (timestamp (in seconds), note (in frequency)) pair.
 		"""
+		print "EXERCISE:", exercise
 		exercise_cues = []
 		t = 0
 		for i in range(len(exercise[0])):
@@ -75,9 +84,7 @@ class Intunation(object):
 	def score_recording(self):
 		if self.current_recording.size != 0 and self.current_fs:
 			score, fs, snd, pitches = self.autotune(self.current_exercise) 
-			print "SCORING RECORDING..."
 			self.current_pitch_detection = pitches
-			print pitches
 			self.score += score
 			wavfile.write('autotune.wav', fs, snd)
 			r = send_file('autotune.wav', mimetype='audio/wav', as_attachment=True, attachment_filename='autotune.wav')
@@ -88,14 +95,5 @@ class Intunation(object):
 			return r
 		return 'BAD'
 		
-game = Intunation()
-app = Flask(__name__)
-app.add_url_rule('/', view_func=game.render_html)
-app.add_url_rule('/favicon.png', view_func=game.favicon, methods=['GET'])
-app.add_url_rule('/save_recording', view_func=game.save_recording, methods=['POST'])
-app.add_url_rule('/score_recording', view_func=game.score_recording, methods=['GET'])
-app.add_url_rule('/score', view_func=game.get_score, methods=['GET'])
-app.add_url_rule('/get_pitches', view_func=game.get_pitches, methods=['GET'])
-app.add_url_rule('/serve_metronome', view_func=game.serve_metronome, methods=['GET'])
-app.add_url_rule('/serve_level_complete', view_func=game.serve_level_complete, methods=['GET'])
-app.add_url_rule('/serve_exercise_complete', view_func=game.serve_exercise_complete, methods=['GET'])
+if __name__ == '__main__':
+    Intunation().run()
